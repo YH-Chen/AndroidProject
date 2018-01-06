@@ -19,10 +19,15 @@ import java.util.List;
  */
 
 public class StudentDB extends SQLiteOpenHelper {
-    private static final String DB_NAME = "SCHOOL.db";          // 数据库名字
-    private static final String STU_TABLE_NAME = "STUDENTS";    // "学生"表名
-    private static final String SET_TABLE_NAME = "SETTINGS";    // "设置"表名
-    private static final int DB_VERSION = 1;                    // 版本号
+    private static final String DB_NAME = "SCHOOL.db";                  // 数据库名字
+    private static final String STU_TABLE_NAME = "STUDENTS";            // "学生"表名
+    private static final String SET_TABLE_NAME = "SETTINGS";            // "设置"表名
+    private static final String COURSE_TABLE_NAME = "Courses";          // "课程"表名
+    private static final String COURSE_REL_TABLE_NAME = "StuCourses";   // "学生-课程"表名
+    private static final String TASK_TABLE_NAME = "Task";               // "任务"表名
+    private static final String TASK_REL_TABLE_NAME = "TaskRelation";   // "学生-任务"表名
+    private static final String TI_TABLE_NAME = "TaskInfo";             // "任务信息"表名
+    private static final int DB_VERSION = 1;                            // 版本号
 
     public StudentDB(Context context) {  // 构造函数，方便创建，只传入context
         super(context, DB_NAME, null, DB_VERSION);
@@ -30,17 +35,50 @@ public class StudentDB extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String STU_TABLE = "create table " + STU_TABLE_NAME
+        String CREATE_STU_TABLE = "create table " + STU_TABLE_NAME
                 + "(sname text primary key, "
                 + "nickname text not null, "
                 + "password text not null);";
-        String SET_TABLE = "create table " + SET_TABLE_NAME
+        String CREATE_SET_TABLE = "create table " + SET_TABLE_NAME
                 + "(sName text primary key, "
                 + "maxtask integer not null, "
                 + "studytime text, "
                 + "resttime text);";
-        db.execSQL(STU_TABLE);
-        db.execSQL(SET_TABLE);
+        db.execSQL(CREATE_STU_TABLE);
+        db.execSQL(CREATE_SET_TABLE);
+        String CREATE_COURSE_TABLE1 = "create table " + COURSE_TABLE_NAME
+                + " (courseId integer primary key autoincrement, "
+                + "courseName text , "
+                + "weekday integer , "
+                + "startTime text , "
+                + "endTime text , "
+                + "teacherName text, "
+                + "room text);";
+        String CREATE_COURSE_TABLE2 = "create table " + COURSE_REL_TABLE_NAME
+                + " (Id integer primary key autoincrement, "
+                + "sname text , "
+                + "cid integer)";
+        db.execSQL(CREATE_COURSE_TABLE1);
+        db.execSQL(CREATE_COURSE_TABLE2);
+        String CREATE_TI_TABLE = "create table " + TI_TABLE_NAME
+                + "(_id integer primary key AUTOINCREMENT, "
+                + "taskId integer, "
+                + "pusherId integer, "
+                + "content text);";
+        db.execSQL(CREATE_TI_TABLE);
+        String CREATE_TASK_TABLE = "create table " + TASK_TABLE_NAME +
+                " (_id integer primary key autoincrement, " +
+                "taskName text not null, " +
+                "taskBrief text, " +
+                "taskDDL text, " +
+                "creatorName text);";
+        String CREATE_TASK_REL_TABLE = "create table " + TASK_REL_TABLE_NAME +
+                "(tid integer not null," +
+                "sName text not null," +
+                "acceptInvitation integer," +
+                "primary key(tid,sName));";
+        db.execSQL(CREATE_TASK_TABLE);
+        db.execSQL(CREATE_TASK_REL_TABLE);
     }
 
     /* DB_VERSION 变化时调用此函数 */

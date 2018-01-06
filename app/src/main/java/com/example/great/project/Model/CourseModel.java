@@ -1,17 +1,19 @@
 package com.example.great.project.Model;
 
+import java.io.Serializable;
+
 /**
  * Created by great on 2018/1/5.
  */
 
-public class CourseModel {
+public class CourseModel implements Serializable {
     private int courseId;
     private String courseName;
-    private int weekDay;
+    private String weekDay;
     private String startTime;
     private String endTime;
     private String teacherName;
-
+    private String room;
     /*CourseModel(String coursename, int weekday, String starttime, String endtime, String teacherame){
         courseName = coursename;
         weekDay = weekday;
@@ -22,7 +24,7 @@ public class CourseModel {
 
     //CourseModel(){}
 
-    public int getWeekDay() {
+    public String getWeekDay() {
         return weekDay;
     }
 
@@ -46,6 +48,18 @@ public class CourseModel {
         return courseId;
     }
 
+    public String getRoom() {
+        return room;
+    }
+
+    public String getTime(){
+        String time = weekDay;
+        time += startTime;
+        time += " - ";
+        time += endTime;
+        return time;
+    }
+
     public void setCourseName(String courseName) {
         this.courseName = courseName;
     }
@@ -62,11 +76,15 @@ public class CourseModel {
         this.teacherName = teacherName;
     }
 
-    public void setWeekDay(int weekDay) {
+    public void setWeekDay(String weekDay) {
         this.weekDay = weekDay;
     }
 
     public void setCourseId(int courseId) {
         this.courseId = courseId;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
     }
 }
