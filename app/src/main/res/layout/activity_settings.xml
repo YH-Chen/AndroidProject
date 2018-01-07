@@ -33,8 +33,16 @@
                 android:id="@+id/setheadimage"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
+                android:padding="5dp"
                 android:src="@mipmap/xiaokeai"/>
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/grey" />
 
         <LinearLayout
             android:id="@+id/Line2"
@@ -92,11 +100,12 @@
                 android:layout_gravity="center"/>
         </LinearLayout>
 
-        <Button
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:id="@+id/pwbtn"
             android:text="密码"
+            android:textColor="@color/black"
             android:textSize="18sp"
             android:paddingLeft="16dp"
             android:layout_marginTop="30dp"

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
@@ -115,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
     private String sNameStr;
     private String nickNameStr;
     private String pwStr;
-
+    private String headImageStr;
+    private Bitmap bitmap;
 
     // view4
     private Button settings;
@@ -201,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
         courseExisted.setAdapter(animationAdapter2);
         courseRecy.setItemAnimator(new OvershootInLeftAnimator());
         courseExisted.setItemAnimator(new OvershootInLeftAnimator());
-            //TODO
 
         // view2 taskDLL
 
@@ -223,9 +225,7 @@ public class MainActivity extends AppCompatActivity {
         username = sharedPref.getString("username","");
         if(username.isEmpty()){
             startActivityForResult(new Intent(MainActivity.this, Login.class), 1);
-        }
-        else{
-
+        } else {
             //search in DB to initial classes and taskDDL;
             //Toast 欢迎您username
             student = sdb.queryStu(sharedPref.getString("username", "")).get(0);
@@ -247,12 +247,21 @@ public class MainActivity extends AppCompatActivity {
                 sNameStr = item.getSName();
                 nickNameStr = item.getNickName();
                 pwStr = item.getPassword();
+                headImageStr = item.getHeadImage();
             }
             sName.setText(sNameStr);
             nickName.setText(nickNameStr);
+            if (headImageStr != null) {
+                bitmap = BitmapFactory.decodeFile(headImageStr);
+                headImage.setImageBitmap(bitmap);
+            }
         }
     }
 
+
+    /*
+    功能页面切换
+     */
     private void switchPage() {
         PagerAdapter pagerAdapter = new PagerAdapter() {
             @Override
@@ -280,31 +289,28 @@ public class MainActivity extends AppCompatActivity {
         vpager.setAdapter(pagerAdapter);
     }
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_classes:
-                    vpager.setCurrentItem(0);
-                    break;
-                case R.id.navigation_ddl:
-                    vpager.setCurrentItem(1);
-                    break;
-                case R.id.navigation_learn:
-                    vpager.setCurrentItem(2);
-                    break;
-                case R.id.navigation_settings:
-                    vpager.setCurrentItem(3);
-                    break;
-            }
-            return true;
-        }
-    };
 
     private void setListener(){
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.navigation_classes:
+                        vpager.setCurrentItem(0);
+                        break;
+                    case R.id.navigation_ddl:
+                        vpager.setCurrentItem(1);
+                        break;
+                    case R.id.navigation_learn:
+                        vpager.setCurrentItem(2);
+                        break;
+                    case R.id.navigation_settings:
+                        vpager.setCurrentItem(3);
+                        break;
+                }
+                return true;
+            }
+        });
         courseListAdp.setOnItemClickListener(new CommonAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
@@ -466,6 +472,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("sName", sNameStr);
                 intent.putExtra("nickName", nickNameStr);
                 intent.putExtra("password", pwStr);
+                intent.putExtra("headImage", headImageStr);
                 startActivity(intent);
             }
         });
@@ -504,9 +511,14 @@ public class MainActivity extends AppCompatActivity {
             sNameStr = item.getSName();
             nickNameStr = item.getNickName();
             pwStr = item.getPassword();
+            headImageStr = item.getHeadImage();
         }
         sName.setText(sNameStr);
         nickName.setText(nickNameStr);
+        if(headImageStr != null) {
+            bitmap = BitmapFactory.decodeFile(headImageStr);
+            headImage.setImageBitmap(bitmap);
+        }
         Log.d("TAG", "onStart");
     }
 
