@@ -13,9 +13,10 @@ import java.util.LinkedHashMap
 /**
  * Created by 61915 on 18/01/05.
  */
-class TaskInfoDB(c: Context) : SQLiteOpenHelper(c, c!!.getString(R.string.DB_name), null, DB_VERSION) {
+class TaskInfoDB(c: Context) : SQLiteOpenHelper(c, DB_NAME, null, DB_VERSION) {
     companion object {
         val DB_VERSION:Int = 1
+        private val DB_NAME = "SCHOOL.db"                  // 数据库名字
         private val TABLE_NAME = "TaskInfo"
 
     }
@@ -123,7 +124,7 @@ class TaskInfoDB(c: Context) : SQLiteOpenHelper(c, c!!.getString(R.string.DB_nam
                 val temp:TaskInfo = TaskInfo(
                     cursor.getInt(cursor.getColumnIndex("_id")),
                     cursor.getInt(cursor.getColumnIndex("taskId")),
-                    cursor.getInt(cursor.getColumnIndex("pusherId")),
+                    cursor.getString(cursor.getColumnIndex("pusherId")),
                     cursor.getString(cursor.getColumnIndex("content"))
                 )
                 resultList.add(temp)

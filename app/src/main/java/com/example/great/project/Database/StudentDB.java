@@ -25,7 +25,7 @@ public class StudentDB extends SQLiteOpenHelper {
     private static final String COURSE_TABLE_NAME = "Courses";          // "课程"表名
     private static final String COURSE_REL_TABLE_NAME = "StuCourses";   // "学生-课程"表名
     private static final String TASK_TABLE_NAME = "Task";               // "任务"表名
-    private static final String TASK_REL_TABLE_NAME = "TaskRelation";   // "学生-任务"表名
+    private static final String TASK_REL_TABLE_NAME = "StuTaskRelation";   // "学生-任务"表名
     private static final String TI_TABLE_NAME = "TaskInfo";             // "任务信息"表名
     private static final int DB_VERSION = 1;                            // 版本号
 
@@ -69,6 +69,7 @@ public class StudentDB extends SQLiteOpenHelper {
         db.execSQL(CREATE_TI_TABLE);
         String CREATE_TASK_TABLE = "create table " + TASK_TABLE_NAME +
                 " (_id integer primary key autoincrement, " +
+                "courseId integer not null, " +
                 "taskName text not null, " +
                 "taskBrief text, " +
                 "taskDDL text, " +

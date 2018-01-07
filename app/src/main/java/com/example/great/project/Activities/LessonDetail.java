@@ -15,11 +15,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.great.project.Database.CourseDB;
+import com.example.great.project.Database.TaskDB;
 import com.example.great.project.Model.CourseModel;
+import com.example.great.project.Model.Task;
 import com.example.great.project.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class LessonDetail extends AppCompatActivity {
@@ -34,7 +38,9 @@ public class LessonDetail extends AppCompatActivity {
     //单击课程表里的任务表，跳转到任务界面
     //课程下可以新增任务，类似于从主界面新增课程。TaskEdit类为新增任务
 
+    private SimpleDateFormat DTF = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA);
     private CourseDB cdb = new CourseDB(this);
+    private TaskDB tdb = new TaskDB(this);
 
     private TextView courseName;
     private TextView courseRoom;
@@ -45,11 +51,12 @@ public class LessonDetail extends AppCompatActivity {
     private ImageView backBtn;
     private Button changeBtn;
     private Button deleteBtn;
+    private Button newTaskBtn;
     private RecyclerView TaskRec;
 
     private String sname;
     private List<Map<String, Object>> taskItem = new ArrayList<>();
-    private CommonAdapter taskAdp;
+    private CommonAdapter<Task> taskAdp;
     private CourseModel course;
 
     private void initial(){
@@ -62,6 +69,7 @@ public class LessonDetail extends AppCompatActivity {
         backBtn = findViewById(R.id.course_detail_back);
         changeBtn = findViewById(R.id.course_detail_change);
         deleteBtn = findViewById(R.id.course_detail_delete);
+        newTaskBtn = findViewById(R.id.course_detail_new_task_btn);
         TaskRec = findViewById(R.id.course_detail_taskrec);
 
         Intent intent = getIntent();
@@ -74,6 +82,17 @@ public class LessonDetail extends AppCompatActivity {
         courseEndTime.setText(course.getEndTime());
         courseTeacher.setText(course.getTeacherName());
         courseDate.setText(course.getWeekDay());
+
+        //任务列表初始化
+        taskAdp = new CommonAdapter<Task>(this, R.layout.course_detail_task_items, tdb.searchByParticipantName(sname)) {
+            @Override
+            public void convert(ViewHolder viewHolder, Task task) {
+                TextView name = findViewById(R.id.course_detail_task_name);
+                name.setText(task.getTaskName());
+                TextView ddl = findViewById(R.id.course_detail_task_ddl);
+                ddl.setText(DTF.format(task.getTaskDDL()));
+            }
+        };
     }
 
     private void setListener(){
@@ -148,6 +167,33 @@ public class LessonDetail extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {}
                 });
                 deleteCourse.show();
+            }
+        });
+
+        newTaskBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder addTaskAlertDialog = new AlertDialog.Builder(LessonDetail.this);
+                addTaskAlertDialog.setTitle("添加任务");
+                LayoutInflater factor = LayoutInflater.from(LessonDetail.this);
+                View view_in = factor.inflate(R.layout.course_detail_add_task_dialog_layout, null);
+                addTaskAlertDialog.setView(view_in);
+                final EditText editTaskName = view_in.findViewById(R.id.course_detail_add_task_dialog_taskname);
+                final EditText editTaskBrief = view_in.findViewById(R.id.course_detail_add_task_dialog_taskbrief);
+                final EditText editTaskDDLYear = view_in.findViewById(R.id.course_detail_add_task_dialog_taskDDL_year);
+                final EditText editTaskDDLMonth = view_in.findViewById(R.id.course_detail_add_task_dialog_taskDDL_month);
+                final EditText editTaskDDLDay = view_in.findViewById(R.id.course_detail_add_task_dialog_taskDDL_day);
+                addTaskAlertDialog.setPositiveButton("添加任务", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                addTaskAlertDialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {}
+                });
+                addTaskAlertDialog.show();
             }
         });
     }
