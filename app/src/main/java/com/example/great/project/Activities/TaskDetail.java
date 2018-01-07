@@ -83,9 +83,11 @@ public class TaskDetail extends AppCompatActivity {
                 pusher.setText(taskInfo.getPusherId());
             }
         };
-        taskInfoListView.setLayoutManager(new LinearLayoutManager(this));
         taskInfoListView.setAdapter(taskInfoAdapter);
-        taskInfoListView.smoothScrollToPosition(taskInfoAdapter.getItemCount()-1);
+        taskInfoListView.setLayoutManager(new LinearLayoutManager(this));
+        if(taskInfoAdapter.getItemCount() > 0){
+            taskInfoListView.smoothScrollToPosition(taskInfoAdapter.getItemCount()-1);
+        }
     }
 
     void setListeners(){
