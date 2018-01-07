@@ -294,6 +294,35 @@ public class MainActivity extends BaseActivity {
 
 
     private void setListener(){
+        vpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch (position){
+                    case 0:
+                        navigation.setSelectedItemId(R.id.navigation_classes);
+                        break;
+                    case 1:
+                        navigation.setSelectedItemId(R.id.navigation_ddl);
+                        break;
+                    case 2:
+                        navigation.setSelectedItemId(R.id.navigation_learn);
+                        break;
+                    case 3:
+                        navigation.setSelectedItemId(R.id.navigation_settings);
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
