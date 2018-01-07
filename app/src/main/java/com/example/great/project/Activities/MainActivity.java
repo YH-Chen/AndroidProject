@@ -27,20 +27,25 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dsw.calendar.views.GridCalendarView;
 import com.example.great.project.Database.CourseDB;
 import com.example.great.project.Database.StudentDB;
+import com.example.great.project.Database.TaskDB;
 import com.example.great.project.Model.CourseModel;
 import com.example.great.project.Model.Student;
+import com.example.great.project.Model.Task;
 import com.example.great.project.R;
 import com.example.great.project.View.TitleBar;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +107,7 @@ public class MainActivity extends BaseActivity {
     // 数据库定义
     private StudentDB sdb;
     private CourseDB cdb = new CourseDB(this);
+    private TaskDB tdb = new TaskDB(this);
     private List<Student> stulist;
 
 
@@ -114,8 +120,9 @@ public class MainActivity extends BaseActivity {
     private TextView courseHint;
     private RecyclerView courseExisted;
     private AlertDialog.Builder addCourse;
-    private ImageView backCourse;
-    private TextView courseTopHint;
+    private TextView courseHintText1;
+    private TextView courseHintText2;
+    private LinearLayout courseCenterHint;
     int addBtnFlag;
 
     // 标题栏
@@ -134,6 +141,15 @@ public class MainActivity extends BaseActivity {
     private TextView sName;
     private TextView nickName;
 
+    //日历
+    private GridCalendarView calendar;
+    private RecyclerView myTaskRec;
+    private List myTaskList = new ArrayList();
+    private List<Map<String, Object>> myTaskItem;
+    private CommonAdapter myTaskAdp;
+
+    int whichPage;
+
 
     /*
     应用启动初始化
@@ -144,11 +160,13 @@ public class MainActivity extends BaseActivity {
         sdb = new StudentDB(this);
         stulist = new ArrayList<>();
 
+        whichPage = 0;
+
         navigation = findViewById(R.id.navigation);
         disableShiftMode(navigation);           // 去除原动画
         vpager = (ViewPager) findViewById(R.id.viewpager);
         titleBar = (TitleBar)findViewById(R.id.titlebar);
-        titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        //titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
 
         LayoutInflater inflater = getLayoutInflater();
@@ -169,6 +187,9 @@ public class MainActivity extends BaseActivity {
         addBtnFlag = 0;
         addCourse = new AlertDialog.Builder(MainActivity.this);
 
+        courseHintText1 = view1.findViewById(R.id.course_hint_line1);
+        courseHintText2 = view1.findViewById(R.id.course_hint_line2);
+        courseCenterHint = view1.findViewById(R.id.course_center_hint);
         courseRecy = view1.findViewById(R.id.course_recy);
         addButton = view1.findViewById(R.id.addCourse);
         courseHint = view1.findViewById(R.id.course_hint);
@@ -220,7 +241,14 @@ public class MainActivity extends BaseActivity {
 
         // view2 taskDLL
 
-            //TODO
+        calendar = findViewById(R.id.calendar);
+        myTaskRec = findViewById(R.id.main_task_rec);
+        //myTaskList = tdb.searchByParticipantName(sNameStr);
+        /*for(int i = 0; i < myTaskList.size(); i++){
+            Task tmp = (Task) myTaskList.get(i);
+            Date date = tmp.getTaskDDL();
+            date.getTime();
+        }*/
 
         // view3 番茄学习
 
@@ -245,6 +273,8 @@ public class MainActivity extends BaseActivity {
             Toast.makeText(MainActivity.this, "欢迎" + student.getSName() + "同学", Toast.LENGTH_SHORT).show();
             List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
 
+            if (!courselist.isEmpty()) courseCenterHint.setVisibility(View.INVISIBLE);
+            else courseCenterHint.setVisibility(View.VISIBLE);
             for(int i = 0; i < courselist.size(); i++){
                 Map<String, Object> tmp = new LinkedHashMap<>();
                 tmp.put("name", courselist.get(i).getCourseName());
@@ -317,17 +347,27 @@ public class MainActivity extends BaseActivity {
                 switch (position){
                     case 0:
                         titleBar.setTitle("我的课程");
-                        titleBar.setLeftText("");
-                        titleBar.setLeftImageResource(0);
+                        if(addBtnFlag == 1){
+                            titleBar.setLeftImageResource(R.drawable.ic_left_black);
+                            titleBar.setLeftText("返回");
+                        }
+                        else{
+                            titleBar.setLeftImageResource(0);
+                            titleBar.setLeftText("");
+                        }
+                        whichPage = 0;
                         navigation.setSelectedItemId(R.id.navigation_classes);
                         break;
                     case 1:
+                        whichPage = 1;
                         navigation.setSelectedItemId(R.id.navigation_ddl);
                         break;
                     case 2:
+                        whichPage = 2;
                         navigation.setSelectedItemId(R.id.navigation_learn);
                         break;
                     case 3:
+                        whichPage = 3;
                         titleBar.setTitle("设置");
                         titleBar.setLeftImageResource(R.drawable.ic_left_black);
                         titleBar.setLeftText("返回");
@@ -376,6 +416,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onLongClick(int position) {}
         });
+
         courseExistedAdp.setOnItemClickListener(new CommonAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
@@ -388,6 +429,9 @@ public class MainActivity extends BaseActivity {
                 titleBar.setLeftText("");
                 courseRecy.setVisibility(View.VISIBLE);
                 courseExisted.setVisibility(View.INVISIBLE);
+                titleBar.setLeftImageResource(0);
+                titleBar.setLeftText("");
+                Toast.makeText(MainActivity.this, "添加课程成功", Toast.LENGTH_SHORT).show();
 //                backCourse.setVisibility(View.INVISIBLE);
                 List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
                 courseItem.clear();
@@ -408,17 +452,25 @@ public class MainActivity extends BaseActivity {
 
             }
         });
+
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(addBtnFlag == 0){
                     courseHint.setText("自定课程");
-                    titleBar.setTitle("课程列表");
+                    titleBar.setTitle("全校已有课程列表");
+                    Toast.makeText(MainActivity.this, "进入全校课程列表", Toast.LENGTH_SHORT).show();
+                    titleBar.setLeftImageResource(R.drawable.ic_left_black);
+                    titleBar.setLeftText("返回");
 //                    backCourse.setVisibility(View.VISIBLE);
                     courseRecy.setVisibility(View.INVISIBLE);
                     courseExisted.setVisibility(View.VISIBLE);
                     courseItem.clear();
                     List<CourseModel> courselist = cdb.getAllCourses();
+                    if (!courselist.isEmpty()) courseCenterHint.setVisibility(View.INVISIBLE);
+                    else courseCenterHint.setVisibility(View.VISIBLE);
+                    courseHintText1.setText("当前学校课程列表为空哦");
+                    courseHintText2.setText("来做第一个添加课程的人吧~");
                     for(int i = 0; i < courselist.size(); i++){
                         Map<String, Object> tmp = new LinkedHashMap<>();
                         tmp.put("name", courselist.get(i).getCourseName());
@@ -462,6 +514,7 @@ public class MainActivity extends BaseActivity {
                             titleBar.setTitle("我的课程");
                             titleBar.setLeftImageResource(0);
                             titleBar.setLeftText("");
+                            courseCenterHint.setVisibility(View.INVISIBLE);
 //                            backCourse.setVisibility(View.INVISIBLE);
                             courseRecy.setVisibility(View.VISIBLE);
                             courseExisted.setVisibility(View.INVISIBLE);
@@ -477,6 +530,7 @@ public class MainActivity extends BaseActivity {
                                 courseItem.add(tmp);
                             }
                             courseListAdp.notifyDataSetChanged();
+                            Toast.makeText(MainActivity.this, "添加课程成功", Toast.LENGTH_SHORT).show();
                         }
                     });
                     addCourse.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -487,31 +541,40 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
-//        backCourse.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                addBtnFlag = 0;
-//                courseHint.setText("添加课程");
-//                titleBar.setTitle("我的课程");
-//        titleBar.setLeftImageResource(0);
-//        titleBar.setLeftText("");
-//                backCourse.setVisibility(View.INVISIBLE);
-//                courseRecy.setVisibility(View.VISIBLE);
-//                courseExisted.setVisibility(View.INVISIBLE);
-//                List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
-//                courseItem.clear();
-//                for(int i = 0; i < courselist.size(); i++){
-//                    Map<String, Object> tmp = new LinkedHashMap<>();
-//                    tmp.put("name", courselist.get(i).getCourseName());
-//                    tmp.put("time", courselist.get(i).getTime());
-//                    tmp.put("room", courselist.get(i).getRoom());
-//                    tmp.put("teacher", courselist.get(i).getTeacherName());
-//                    tmp.put("object", courselist.get(i));
-//                    courseItem.add(tmp);
-//                }
-//                courseListAdp.notifyDataSetChanged();
-//            }
-//        });
+
+        titleBar.setLeftClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(whichPage == 3){
+                    navigation.setSelectedItemId(R.id.navigation_classes);
+                }
+                else if(whichPage == 0){
+                    addBtnFlag = 0;
+                    courseHint.setText("添加课程");
+                    titleBar.setTitle("我的课程");
+                    titleBar.setLeftImageResource(0);
+                    titleBar.setLeftText("");
+                    courseRecy.setVisibility(View.VISIBLE);
+                    courseExisted.setVisibility(View.INVISIBLE);
+                    List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
+                    if (!courselist.isEmpty()) courseCenterHint.setVisibility(View.INVISIBLE);
+                    else courseCenterHint.setVisibility(View.VISIBLE);
+                    courseHintText1.setText("你还没有课程哦");
+                    courseHintText2.setText("点击右下角图标添加吧~");
+                    courseItem.clear();
+                    for(int i = 0; i < courselist.size(); i++){
+                        Map<String, Object> tmp = new LinkedHashMap<>();
+                        tmp.put("name", courselist.get(i).getCourseName());
+                        tmp.put("time", courselist.get(i).getTime());
+                        tmp.put("room", courselist.get(i).getRoom());
+                        tmp.put("teacher", courselist.get(i).getTeacherName());
+                        tmp.put("object", courselist.get(i));
+                    courseItem.add(tmp);
+                    }
+                    courseListAdp.notifyDataSetChanged();
+                }
+            }
+        });
     }
 
     /*
@@ -521,12 +584,6 @@ public class MainActivity extends BaseActivity {
         /*
          *标题栏设置
          */
-        titleBar.setLeftClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigation.setSelectedItemId(R.id.navigation_classes);
-            }
-        });
         /*
          *settings按钮，跳转到Settings Activity
          */
@@ -582,10 +639,14 @@ public class MainActivity extends BaseActivity {
 
             //search in DB to initial classes and taskDDL;
         } else if (requestCode == 2) {
-
+            //Toast.makeText(MainActivity.this, "添加课程成功", Toast.LENGTH_SHORT).show();
         }
         courseItem.clear();
         List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
+        if (!courselist.isEmpty()) courseCenterHint.setVisibility(View.INVISIBLE);
+        else courseCenterHint.setVisibility(View.VISIBLE);
+        titleBar.setLeftText("");
+        titleBar.setLeftImageResource(0);
         for(int i = 0; i < courselist.size(); i++){
             Map<String, Object> tmp = new LinkedHashMap<>();
             tmp.put("name", courselist.get(i).getCourseName());
