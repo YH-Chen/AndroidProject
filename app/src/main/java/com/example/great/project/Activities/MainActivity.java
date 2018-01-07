@@ -16,10 +16,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -85,8 +85,9 @@ ddl倒计时日期之类的可以使用系统api，请查询实现
 
 其余各类的具体内容写在各个类里
 */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
+    private long firstTime = 0;
     private SharedPreferences sharedPref;
     private String username;
 
@@ -254,6 +255,8 @@ public class MainActivity extends AppCompatActivity {
             if (headImageStr != null) {
                 bitmap = BitmapFactory.decodeFile(headImageStr);
                 headImage.setImageBitmap(bitmap);
+            } else {
+                headImage.setImageResource(R.mipmap.xiaokeai);
             }
         }
     }
@@ -503,6 +506,35 @@ public class MainActivity extends AppCompatActivity {
         settingPage();
     }
 
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == 1){
+            username = data.getStringExtra("username");
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("username", username);
+            editor.apply();
+            editor.commit();
+            student = sdb.queryStu(sharedPref.getString("username", "")).get(0);
+            Toast.makeText(MainActivity.this, "欢迎" + student.getNickName() + "同学", Toast.LENGTH_SHORT).show();
+
+            //search in DB to initial classes and taskDDL;
+        } else if (requestCode == 2) {
+
+        }
+        courseItem.clear();
+        List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
+        for(int i = 0; i < courselist.size(); i++){
+            Map<String, Object> tmp = new LinkedHashMap<>();
+            tmp.put("name", courselist.get(i).getCourseName());
+            tmp.put("time", courselist.get(i).getTime());
+            tmp.put("room", courselist.get(i).getRoom());
+            tmp.put("teacher", courselist.get(i).getTeacherName());
+            tmp.put("object", courselist.get(i));
+            courseItem.add(tmp);
+        }
+        courseListAdp.notifyDataSetChanged();
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -518,34 +550,10 @@ public class MainActivity extends AppCompatActivity {
         if(headImageStr != null) {
             bitmap = BitmapFactory.decodeFile(headImageStr);
             headImage.setImageBitmap(bitmap);
+        } else {
+            headImage.setImageResource(R.mipmap.xiaokeai);
         }
         Log.d("TAG", "onStart");
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode == 1){
-            username = data.getStringExtra("username");
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("username", username);
-            editor.apply();
-            editor.commit();
-            student = sdb.queryStu(sharedPref.getString("username", "")).get(0);
-            Toast.makeText(MainActivity.this, "欢迎" + student.getSName() + "同学", Toast.LENGTH_SHORT);
-
-            //search in DB to initial classes and taskDDL;
-        }
-        courseItem.clear();
-        List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
-        for(int i = 0; i < courselist.size(); i++){
-            Map<String, Object> tmp = new LinkedHashMap<>();
-            tmp.put("name", courselist.get(i).getCourseName());
-            tmp.put("time", courselist.get(i).getTime());
-            tmp.put("room", courselist.get(i).getRoom());
-            tmp.put("teacher", courselist.get(i).getTeacherName());
-            tmp.put("object", courselist.get(i));
-            courseItem.add(tmp);
-        }
-        courseListAdp.notifyDataSetChanged();
     }
 
     // 移除bottombutton动画
@@ -566,4 +574,19 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode==KeyEvent.KEYCODE_BACK && event.getAction()==KeyEvent.ACTION_DOWN){
+            if (System.currentTimeMillis() - firstTime>2000){
+                Toast.makeText(MainActivity.this,"再按一次退出程序", Toast.LENGTH_SHORT).show();
+                firstTime=System.currentTimeMillis();
+            }else{
+                finish();
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 }

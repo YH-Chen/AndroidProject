@@ -1,6 +1,7 @@
 package com.example.great.project.Activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -41,12 +42,12 @@ public class Settings extends AppCompatActivity {
     private static final int CHOOSE_PHOTO = 0;
     private static final int TAKE_PHOTO = 1;
     private static final int CROP_SMALL_PHOTO = 2;
-    private boolean hasPermission = false;
+    private static boolean hasPermission = false;
     private Uri imageUri;
     private Bitmap bitmap;
     private ImageView setHeadImage;
-    private String imageName;
-    private String path = "/sdcard/Students/images/";
+    private String imagePath;
+    private String filePath = "/storage/emulated/0/students/";
 
     private AlertDialog.Builder builder;
     private AlertDialog.Builder simple;
@@ -59,6 +60,23 @@ public class Settings extends AppCompatActivity {
     private LinearLayout main_layout;
     private LinearLayout setpw_layout;
 
+    /*
+    动态申请权限
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+        try {
+            int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                // 没有读取权限，申请权限弹出对话框
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            } else {
+                hasPermission = true;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +84,7 @@ public class Settings extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         sdb = new StudentDB(this);
-        
+        Log.d("TAG", String.valueOf(Environment.getExternalStorageDirectory()));
         // 跳转传参
         Intent stuData= getIntent();
         sName = stuData.getStringExtra("sName");
@@ -90,9 +108,12 @@ public class Settings extends AppCompatActivity {
 
         showSName.setText(sName);
         showNickName.setText(nickName);
-        bitmap = BitmapFactory.decodeFile(headImage);
-        setHeadImage.setImageBitmap(bitmap);
-
+        if (headImage != null) {
+            bitmap = BitmapFactory.decodeFile(headImage);
+            setHeadImage.setImageBitmap(bitmap);
+        } else {
+            setHeadImage.setImageResource(R.mipmap.xiaokeai);
+        }
 
         //修改界面元素
         final EditText setpw1 = (EditText)findViewById(R.id.setpw1);
@@ -121,14 +142,41 @@ public class Settings extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case CHOOSE_PHOTO:    // 选择本地照片
-                                if(hasPermission) {
-                                    choose_photo();
-                                }else {
-                                    ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+//                                verifyStoragePermissions(Settings.this);
+                                try {
+                                    int permission = ActivityCompat.checkSelfPermission(Settings.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+                                    if (permission != PackageManager.PERMISSION_GRANTED) {
+                                        // 没有读取权限，申请权限弹出对话框
+                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                                    } else {
+                                        choose_photo();
+                                        Log.d("TAG", "CHOOSE_PHOTO");
+                                    }
                                 }
+                                catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+//                                if(hasPermission) {
+//                                    choose_photo();
+//                                    Log.d("TAG", "CHOOSE_PHOTO");
+//                                }
                                 break;
                             case TAKE_PHOTO:      // 拍照
-                                take_photo();
+                                try {
+                                    int permission = ActivityCompat.checkSelfPermission(Settings.this, Manifest.permission.CAMERA);
+                                    if (permission != PackageManager.PERMISSION_GRANTED) {
+                                        // 没有读取权限，申请权限弹出对话框
+                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.CAMERA}, 1);
+                                    } else {
+                                        take_photo();
+                                        Log.d("TAG", "TAKE_PHOTO");
+                                    }
+                                }
+                                catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+//                                take_photo();
+//                                Log.d("TAG", "TAKE_PHOTO");
                                 break;
                         }
                     }
@@ -241,10 +289,9 @@ public class Settings extends AppCompatActivity {
         });
     }
 
-
     private void take_photo(){
         // 创建File对象，用于存储拍照后的图片
-        imageUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "output_image.jpg"));
+        imageUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "output_image.png"));
         // 启动相机程序
         Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
@@ -253,8 +300,8 @@ public class Settings extends AppCompatActivity {
 
     private void choose_photo(){
         //启动相册
-        Intent openAlbumIntent = new Intent(Intent.ACTION_PICK);
-        openAlbumIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        Intent openAlbumIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//        openAlbumIntent.setType("image/*");
         startActivityForResult(openAlbumIntent, CHOOSE_PHOTO);
     }
 
@@ -278,28 +325,37 @@ public class Settings extends AppCompatActivity {
     /*
      *保存剪裁之后的图片显示到界面
      */
-    protected void setImageToView(Intent data) {
+    protected void setImageToView(Intent data){
         Bundle extras = data.getExtras();
         if (extras != null) {
             bitmap = extras.getParcelable("data");
             setHeadImage.setImageBitmap(bitmap);
+
+            // 创建文件夹
+            File localFile = new File(filePath);
+            if (!localFile.exists()) {
+                localFile.mkdir();
+            }
+
+
             FileOutputStream fos = null;
-//            File file = new File(path);
-//            file.mkdirs();// 创建文件夹
-            imageName = path + sName + "_image.png";
-            Log.d("TAG", "savepath"+path);
+            imagePath = filePath +'/'+ sName + "_image.png";
+            Log.d("TAG", "savepath as "+ imagePath);
             try {
-                fos = new FileOutputStream(path);
+                fos = new FileOutputStream(imagePath);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } finally {
                 try {
-                } catch (IOException e) {
+                    assert fos != null;
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e){
                     e.printStackTrace();
                 }
             }
-            Student stu = new Student(sName, nickName, password, imageName);
+            Student stu = new Student(sName, nickName, password, imagePath);
             sdb.updateStu(stu);
         }
     }
@@ -310,7 +366,8 @@ public class Settings extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         switch (requestCode){
             case CHOOSE_PHOTO:
-                cutImage(data.getData());
+                if (resultCode == RESULT_OK)
+                    cutImage(data.getData());
                 break;
             case TAKE_PHOTO:
                 cutImage(imageUri);
@@ -327,13 +384,12 @@ public class Settings extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             choose_photo();
-            hasPermission = true;
             Log.d("TAG", "onRequestPermissionsResult");
         } else {
             // 拒绝权限
+            finish();
             System.exit(0);
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-
 }

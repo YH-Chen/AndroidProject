@@ -16,14 +16,15 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@mipmap/xiaokeai"
-            android:contentDescription="@string/headimage" />
+            android:contentDescription="@string/headimage"
+            android:padding="8dp"/>
 
         <TextView
             android:id="@+id/nickName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="16dp"
             android:layout_toEndOf="@id/headImage"
             android:text="Danboard"
             android:textSize="20sp"
@@ -34,8 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/nickName"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="16dp"
             android:layout_toEndOf="@id/headImage"
             android:text="SID：C960609"
             android:textSize="16sp"
