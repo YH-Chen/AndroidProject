@@ -79,7 +79,7 @@ public class TaskDetail extends AppCompatActivity {
         participantListView.setAdapter(participantSimpleAdaptor);
 
 //        ArrayList<TaskInfo> taskInfoList = myTaskInfoDB.queryByTask(taskId);
-        CommonAdapter taskInfoAdapter = new CommonAdapter<TaskInfo>(this, R.layout.task_info_item_layout, myTaskInfoDB.queryByTask(taskId)){
+        CommonAdapter<TaskInfo> taskInfoAdapter = new CommonAdapter<TaskInfo>(this, R.layout.task_info_item_layout, myTaskInfoDB.queryByTask(taskId)){
             @Override
             public void convert(ViewHolder viewHolder, TaskInfo taskInfo) {
                 TextView content = findViewById(R.id.taskDetail_taskInfo_content);
