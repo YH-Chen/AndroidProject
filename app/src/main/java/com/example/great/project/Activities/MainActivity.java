@@ -36,6 +36,7 @@ import com.example.great.project.Database.StudentDB;
 import com.example.great.project.Model.CourseModel;
 import com.example.great.project.Model.Student;
 import com.example.great.project.R;
+import com.example.great.project.View.TitleBar;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -88,13 +89,21 @@ ddl倒计时日期之类的可以使用系统api，请查询实现
 public class MainActivity extends BaseActivity {
 
     private long firstTime = 0;
+    private String sNameStr;
+    private String nickNameStr;
+    private String pwStr;
+    private String headImageStr;
+    private Bitmap bitmap;
+
+    // 轻量级nvp
     private SharedPreferences sharedPref;
     private String username;
 
-
+    // 数据库定义
     private StudentDB sdb;
     private CourseDB cdb = new CourseDB(this);
     private List<Student> stulist;
+
 
     private List<Map<String, Object>> courseItem = new ArrayList<>();
     private RecyclerView courseRecy;
@@ -109,17 +118,14 @@ public class MainActivity extends BaseActivity {
     private TextView courseTopHint;
     int addBtnFlag;
 
+    // 标题栏
+    private TitleBar titleBar;
 
+    // viewpager组件
     private ViewPager vpager;
     private BottomNavigationView navigation;
-    private List<View> viewList;                // view数组
+    private List<View> viewList;
 
-
-    private String sNameStr;
-    private String nickNameStr;
-    private String pwStr;
-    private String headImageStr;
-    private Bitmap bitmap;
 
     // view4
     private Button settings;
@@ -141,6 +147,9 @@ public class MainActivity extends BaseActivity {
         navigation = findViewById(R.id.navigation);
         disableShiftMode(navigation);           // 去除原动画
         vpager = (ViewPager) findViewById(R.id.viewpager);
+        titleBar = (TitleBar)findViewById(R.id.titlebar);
+        titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
 
         LayoutInflater inflater = getLayoutInflater();
         View view1 = inflater.inflate(R.layout.layout_course, null);
@@ -165,9 +174,12 @@ public class MainActivity extends BaseActivity {
         courseHint = view1.findViewById(R.id.course_hint);
         courseExisted = view1.findViewById(R.id.course_existed);
         courseExisted.setVisibility(View.INVISIBLE);
-        backCourse = view1.findViewById(R.id.course_back);
-        backCourse.setVisibility(View.INVISIBLE);
-        courseTopHint = view1.findViewById(R.id.course_title);
+//        backCourse = view1.findViewById(R.id.course_back);
+//        backCourse.setVisibility(View.INVISIBLE);
+//        courseTopHint = view1.findViewById(R.id.course_title);
+        titleBar.setTitle("我的课程");
+        titleBar.setLeftImageResource(0);
+        titleBar.setLeftText("");
         this.courseListAdp = new CommonAdapter<Map<String, Object>>(this, R.layout.lesson_recy_layout, this.courseItem) {
             @Override
             public void convert(ViewHolder viewHolder, Map<String, Object> s) {
@@ -304,6 +316,9 @@ public class MainActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 switch (position){
                     case 0:
+                        titleBar.setTitle("我的课程");
+                        titleBar.setLeftText("");
+                        titleBar.setLeftImageResource(0);
                         navigation.setSelectedItemId(R.id.navigation_classes);
                         break;
                     case 1:
@@ -313,6 +328,10 @@ public class MainActivity extends BaseActivity {
                         navigation.setSelectedItemId(R.id.navigation_learn);
                         break;
                     case 3:
+                        titleBar.setTitle("设置");
+                        titleBar.setLeftImageResource(R.drawable.ic_left_black);
+                        titleBar.setLeftText("返回");
+                        titleBar.setLeftTextColor(getResources().getColor(R.color.black));
                         navigation.setSelectedItemId(R.id.navigation_settings);
                         break;
                 }
@@ -364,10 +383,12 @@ public class MainActivity extends BaseActivity {
                 addBtnFlag = 0;
                 cdb.addExistedCourse(course.getCourseId(), student.getSName());
                 courseHint.setText("添加课程");
-                courseTopHint.setText("我的课程");
+                titleBar.setTitle("我的课程");
+                titleBar.setLeftImageResource(0);
+                titleBar.setLeftText("");
                 courseRecy.setVisibility(View.VISIBLE);
                 courseExisted.setVisibility(View.INVISIBLE);
-                backCourse.setVisibility(View.INVISIBLE);
+//                backCourse.setVisibility(View.INVISIBLE);
                 List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
                 courseItem.clear();
                 for(int i = 0; i < courselist.size(); i++){
@@ -392,8 +413,8 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
                 if(addBtnFlag == 0){
                     courseHint.setText("自定课程");
-                    courseTopHint.setText("全部课程列表");
-                    backCourse.setVisibility(View.VISIBLE);
+                    titleBar.setTitle("课程列表");
+//                    backCourse.setVisibility(View.VISIBLE);
                     courseRecy.setVisibility(View.INVISIBLE);
                     courseExisted.setVisibility(View.VISIBLE);
                     courseItem.clear();
@@ -409,7 +430,7 @@ public class MainActivity extends BaseActivity {
                     }
                     courseExistedAdp.notifyDataSetChanged();
                     addBtnFlag = 1;
-                    backCourse.setVisibility(View.VISIBLE);
+//                    backCourse.setVisibility(View.VISIBLE);
 
                 }
                 else{
@@ -438,8 +459,10 @@ public class MainActivity extends BaseActivity {
                             if (!editCourseName.getText().toString().isEmpty()) cdb.addNewCourse(student.getSName(), course);
                             addBtnFlag = 0;
                             courseHint.setText("添加课程");
-                            courseTopHint.setText("我的课程");
-                            backCourse.setVisibility(View.INVISIBLE);
+                            titleBar.setTitle("我的课程");
+                            titleBar.setLeftImageResource(0);
+                            titleBar.setLeftText("");
+//                            backCourse.setVisibility(View.INVISIBLE);
                             courseRecy.setVisibility(View.VISIBLE);
                             courseExisted.setVisibility(View.INVISIBLE);
                             List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
@@ -464,29 +487,31 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
-        backCourse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addBtnFlag = 0;
-                courseHint.setText("添加课程");
-                courseTopHint.setText("我的课程");
-                backCourse.setVisibility(View.INVISIBLE);
-                courseRecy.setVisibility(View.VISIBLE);
-                courseExisted.setVisibility(View.INVISIBLE);
-                List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
-                courseItem.clear();
-                for(int i = 0; i < courselist.size(); i++){
-                    Map<String, Object> tmp = new LinkedHashMap<>();
-                    tmp.put("name", courselist.get(i).getCourseName());
-                    tmp.put("time", courselist.get(i).getTime());
-                    tmp.put("room", courselist.get(i).getRoom());
-                    tmp.put("teacher", courselist.get(i).getTeacherName());
-                    tmp.put("object", courselist.get(i));
-                    courseItem.add(tmp);
-                }
-                courseListAdp.notifyDataSetChanged();
-            }
-        });
+//        backCourse.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                addBtnFlag = 0;
+//                courseHint.setText("添加课程");
+//                titleBar.setTitle("我的课程");
+//        titleBar.setLeftImageResource(0);
+//        titleBar.setLeftText("");
+//                backCourse.setVisibility(View.INVISIBLE);
+//                courseRecy.setVisibility(View.VISIBLE);
+//                courseExisted.setVisibility(View.INVISIBLE);
+//                List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
+//                courseItem.clear();
+//                for(int i = 0; i < courselist.size(); i++){
+//                    Map<String, Object> tmp = new LinkedHashMap<>();
+//                    tmp.put("name", courselist.get(i).getCourseName());
+//                    tmp.put("time", courselist.get(i).getTime());
+//                    tmp.put("room", courselist.get(i).getRoom());
+//                    tmp.put("teacher", courselist.get(i).getTeacherName());
+//                    tmp.put("object", courselist.get(i));
+//                    courseItem.add(tmp);
+//                }
+//                courseListAdp.notifyDataSetChanged();
+//            }
+//        });
     }
 
     /*
@@ -494,7 +519,16 @@ public class MainActivity extends BaseActivity {
      */
     private void settingPage() {
         /*
-        settings按钮，跳转到Settings Activity
+         *标题栏设置
+         */
+        titleBar.setLeftClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigation.setSelectedItemId(R.id.navigation_classes);
+            }
+        });
+        /*
+         *settings按钮，跳转到Settings Activity
          */
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -509,7 +543,7 @@ public class MainActivity extends BaseActivity {
             }
         });
         /*
-        exit按钮，退出到登录页面Login Activity
+         *exit按钮，退出到登录页面Login Activity
          */
         exit.setOnClickListener(new View.OnClickListener() {
             @Override
