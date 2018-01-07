@@ -123,7 +123,7 @@ class TaskInfoDB(c: Context) : SQLiteOpenHelper(c, c!!.getString(R.string.DB_nam
                 val temp:TaskInfo = TaskInfo(
                     cursor.getInt(cursor.getColumnIndex("_id")),
                     cursor.getInt(cursor.getColumnIndex("taskId")),
-                    cursor.getInt(cursor.getColumnIndex("pusherId")),
+                    cursor.getString(cursor.getColumnIndex("pusherId")),
                     cursor.getString(cursor.getColumnIndex("content"))
                 )
                 resultList.add(temp)

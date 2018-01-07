@@ -171,6 +171,25 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, context!!.getString(
         db.close()
     }
 
+    fun searchParticipantsByTaskID(taskID: Int): List<String>
+    {
+        val ans: LinkedList<String> = LinkedList()
+        val db = readableDatabase
+        val selection = "tid = ?"
+        val selectionArgs = arrayOf(taskID.toString())
+        val c = db.query(REL_TABLE_NAME, null, selection, selectionArgs, null, null, null)
+
+        if (c.moveToNext())
+        {
+            ans.add(c.getString(1))
+            while (c.moveToNext())
+                ans.add(c.getString(1))
+        }
+        c.close()
+        db.close()
+        return ans
+    }
+
     //根据任务名字查询任务
     fun searchByTaskName(taskName: String): List<Task>
     {
