@@ -38,7 +38,8 @@ public class StudentDB extends SQLiteOpenHelper {
         String CREATE_STU_TABLE = "create table " + STU_TABLE_NAME
                 + "(sname text primary key, "
                 + "nickname text not null, "
-                + "password text not null);";
+                + "password text not null, "
+                + "headimage text);";
         String CREATE_SET_TABLE = "create table " + SET_TABLE_NAME
                 + "(sName text primary key, "
                 + "maxtask integer not null, "
@@ -98,6 +99,7 @@ public class StudentDB extends SQLiteOpenHelper {
         values.put("sname", item.getSName());
         values.put("nickname", item.getNickName());
         values.put("password", item.getPassword());
+        values.put("headimage", item.getHeadImage());
 
         db.insert(STU_TABLE_NAME, null, values);
         Log.d("TAG", "Student Insert Successfully");
@@ -119,9 +121,10 @@ public class StudentDB extends SQLiteOpenHelper {
         List<Student> list = new ArrayList<>();
         while (c.moveToNext()) {
             Student item = new Student();
-            item.setSName(c.getString(c.getColumnIndex("sname"))); ;
+            item.setSName(c.getString(c.getColumnIndex("sname")));
             item.setNickName(c.getString(c.getColumnIndex("nickname")));
             item.setPassWord(c.getString(c.getColumnIndex("password")));
+            item.setHeadImage(c.getString(c.getColumnIndex("headimage")));
             list.add(item);
         }
         c.close();
@@ -139,7 +142,8 @@ public class StudentDB extends SQLiteOpenHelper {
 
         values.put("sname", item.getSName());
         values.put("nickname", item.getNickName());
-        values.put("password", item.getPassword());;
+        values.put("password", item.getPassword());
+        values.put("headimage", item.getHeadImage());
 
         db.update(STU_TABLE_NAME, values, whereClause, whereArgs);
         Log.d("TAG", "Student Update Successfully");
