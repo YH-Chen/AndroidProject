@@ -25,7 +25,7 @@ public class StudentDB extends SQLiteOpenHelper {
     private static final String COURSE_TABLE_NAME = "Courses";          // "课程"表名
     private static final String COURSE_REL_TABLE_NAME = "StuCourses";   // "学生-课程"表名
     private static final String TASK_TABLE_NAME = "Task";               // "任务"表名
-    private static final String TASK_REL_TABLE_NAME = "TaskRelation";   // "学生-任务"表名
+    private static final String TASK_REL_TABLE_NAME = "StuTaskRelation";   // "学生-任务"表名
     private static final String TI_TABLE_NAME = "TaskInfo";             // "任务信息"表名
     private static final int DB_VERSION = 1;                            // 版本号
 
@@ -38,7 +38,8 @@ public class StudentDB extends SQLiteOpenHelper {
         String CREATE_STU_TABLE = "create table " + STU_TABLE_NAME
                 + "(sname text primary key, "
                 + "nickname text not null, "
-                + "password text not null);";
+                + "password text not null, "
+                + "headimage text);";
         String CREATE_SET_TABLE = "create table " + SET_TABLE_NAME
                 + "(sName text primary key, "
                 + "maxtask integer not null, "
@@ -68,6 +69,7 @@ public class StudentDB extends SQLiteOpenHelper {
         db.execSQL(CREATE_TI_TABLE);
         String CREATE_TASK_TABLE = "create table " + TASK_TABLE_NAME +
                 " (_id integer primary key autoincrement, " +
+                "courseId integer not null, " +
                 "taskName text not null, " +
                 "taskBrief text, " +
                 "taskDDL text, " +
@@ -97,6 +99,7 @@ public class StudentDB extends SQLiteOpenHelper {
         values.put("sname", item.getSName());
         values.put("nickname", item.getNickName());
         values.put("password", item.getPassword());
+        values.put("headimage", item.getHeadImage());
 
         db.insert(STU_TABLE_NAME, null, values);
         Log.d("TAG", "Student Insert Successfully");
@@ -118,9 +121,10 @@ public class StudentDB extends SQLiteOpenHelper {
         List<Student> list = new ArrayList<>();
         while (c.moveToNext()) {
             Student item = new Student();
-            item.setSName(c.getString(c.getColumnIndex("sname"))); ;
+            item.setSName(c.getString(c.getColumnIndex("sname")));
             item.setNickName(c.getString(c.getColumnIndex("nickname")));
             item.setPassWord(c.getString(c.getColumnIndex("password")));
+            item.setHeadImage(c.getString(c.getColumnIndex("headimage")));
             list.add(item);
         }
         c.close();
@@ -136,9 +140,10 @@ public class StudentDB extends SQLiteOpenHelper {
         String whereClause = "sname = ?";
         String[] whereArgs = {item.getSName()};
 
-        values.put("username", item.getSName());
+        values.put("sname", item.getSName());
         values.put("nickname", item.getNickName());
-        values.put("password", item.getPassword());;
+        values.put("password", item.getPassword());
+        values.put("headimage", item.getHeadImage());
 
         db.update(STU_TABLE_NAME, values, whereClause, whereArgs);
         Log.d("TAG", "Student Update Successfully");

@@ -2,7 +2,7 @@ package com.example.great.project.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,14 +10,16 @@ import android.widget.Toast;
 
 import com.example.great.project.Database.StudentDB;
 import com.example.great.project.Model.Student;
+import com.example.great.project.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.great.project.R;
+public class Login extends BaseActivity {
 
-public class Login extends AppCompatActivity {
-
+    //记录用户首次点击返回键的时间
+    private long firstTime=0;
+    private String EXIT_ACTION = "action.exit";
     private Button login;
     private Button reg;
     private Button confirmreg;
@@ -76,6 +78,9 @@ public class Login extends AppCompatActivity {
                 confirmpwd.setVisibility(View.VISIBLE);
                 login.setVisibility(View.INVISIBLE);
                 reg.setVisibility(View.INVISIBLE);
+                if (pwd.hasFocus()) {
+                    confirmpwd.setFocusable(true);
+                }
             }
         });
 
@@ -95,10 +100,7 @@ public class Login extends AppCompatActivity {
                 } else if(!pwdStr.equals(confirmpwdStr)){
                     Toast.makeText(Login.this, "密码不匹配", Toast.LENGTH_SHORT).show();
                 } else {
-                    Student item = new Student();
-                    item.setSName(usernameStr);
-                    item.setNickName(usernameStr);
-                    item.setPassWord(pwdStr);
+                    Student item = new Student(usernameStr, usernameStr, pwdStr);
                     sdb.insertStu(item);
                     Intent intent = new Intent(Login.this, MainActivity.class);
                     intent.putExtra("username", usernameStr);
@@ -116,4 +118,20 @@ public class Login extends AppCompatActivity {
         initial();
         setListener();
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode==KeyEvent.KEYCODE_BACK && event.getAction()==KeyEvent.ACTION_DOWN){
+            if (System.currentTimeMillis() - firstTime>2000){
+                Toast.makeText(Login.this,"再按一次退出程序", Toast.LENGTH_SHORT).show();
+                firstTime=System.currentTimeMillis();
+            }else{
+                Intent intent = new Intent(EXIT_ACTION);
+                sendBroadcast(intent);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 }

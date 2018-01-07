@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.great.project.Model.CourseModel;
-import com.example.great.project.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,7 +148,7 @@ public class CourseDB extends SQLiteOpenHelper {
     public void updateCourse(String sname, CourseModel course){
         SQLiteDatabase db = getWritableDatabase();
         Cursor cursor = db.query(TABLE_NAME2, null,
-                "where cid = ?", new String[]{Integer.toString(course.getCourseId())},
+                "cid = ?", new String[]{Integer.toString(course.getCourseId())},
                 null, null, null);
         if(cursor.getCount() == 1){
             String whereClause = "courseId = ?";

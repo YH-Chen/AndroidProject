@@ -6,6 +6,6 @@ package com.example.great.project.Model
 data class TaskInfo(
         var id: Int,
         var taskId: Int,
-        var pusherId: Int,
+        var pusherId: String,
         var content: String
 )
