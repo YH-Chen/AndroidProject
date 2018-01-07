@@ -19,6 +19,7 @@ import com.example.great.project.Database.TaskDB;
 import com.example.great.project.Model.CourseModel;
 import com.example.great.project.Model.Task;
 import com.example.great.project.R;
+import com.example.great.project.View.TitleBar;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -48,10 +49,10 @@ public class LessonDetail extends AppCompatActivity {
     private TextView courseEndTime;
     private TextView courseTeacher;
     private TextView courseDate;
-    private ImageView backBtn;
     private Button changeBtn;
     private Button deleteBtn;
     private Button newTaskBtn;
+    private TitleBar titleBar;
     private RecyclerView TaskRec;
 
     private String sname;
@@ -66,7 +67,7 @@ public class LessonDetail extends AppCompatActivity {
         courseEndTime = findViewById(R.id.course_detail_end_time);
         courseTeacher = findViewById(R.id.course_detail_teacher);
         courseDate = findViewById(R.id.course_detail_weekday);
-        backBtn = findViewById(R.id.course_detail_back);
+        titleBar = findViewById(R.id.course_titlebar);
         changeBtn = findViewById(R.id.course_detail_change);
         deleteBtn = findViewById(R.id.course_detail_delete);
         newTaskBtn = findViewById(R.id.course_detail_new_task_btn);
@@ -76,6 +77,10 @@ public class LessonDetail extends AppCompatActivity {
         sname = intent.getExtras().getString("sname");
         course = (CourseModel) intent.getSerializableExtra("course");
 
+        titleBar.setLeftText("返回");
+        titleBar.setTitle("课程详情及任务");
+        titleBar.setLeftImageResource(R.drawable.ic_left_black);
+
         courseName.setText(course.getCourseName());
         courseRoom.setText(course.getRoom());
         courseStratTime.setText(course.getStartTime());
@@ -84,7 +89,7 @@ public class LessonDetail extends AppCompatActivity {
         courseDate.setText(course.getWeekDay());
 
         //任务列表初始化
-        taskAdp = new CommonAdapter<Task>(this, R.layout.course_detail_task_items, tdb.searchByParticipantName(sname)) {
+        /*taskAdp = new CommonAdapter<Task>(this, R.layout.course_detail_task_items, tdb.searchByParticipantName(sname)) {
             @Override
             public void convert(ViewHolder viewHolder, Task task) {
                 TextView name = findViewById(R.id.course_detail_task_name);
@@ -92,11 +97,11 @@ public class LessonDetail extends AppCompatActivity {
                 TextView ddl = findViewById(R.id.course_detail_task_ddl);
                 ddl.setText(DTF.format(task.getTaskDDL()));
             }
-        };
+        };*/
     }
 
     private void setListener(){
-        backBtn.setOnClickListener(new View.OnClickListener() {
+        titleBar.setLeftClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setResult(2);

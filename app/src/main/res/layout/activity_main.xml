@@ -8,12 +8,6 @@
     android:layout_height="match_parent"
     tools:context="com.example.great.project.Activities.MainActivity">
 
-    <com.example.great.project.View.TitleBar
-        android:id="@+id/titlebar"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp">
-
-    </com.example.great.project.View.TitleBar>
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
@@ -36,6 +30,13 @@
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/navigation" />
 
+
+    <com.example.great.project.View.TitleBar
+        android:id="@+id/titlebar"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp">
+
+    </com.example.great.project.View.TitleBar>
 
     <ListView
         android:layout_width="match_parent"
