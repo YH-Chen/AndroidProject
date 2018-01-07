@@ -5,12 +5,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -22,6 +25,7 @@ import com.example.great.project.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,7 +42,8 @@ public class LessonDetail extends AppCompatActivity {
     //单击课程表里的任务表，跳转到任务界面
     //课程下可以新增任务，类似于从主界面新增课程。TaskEdit类为新增任务
 
-    private SimpleDateFormat DTF = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA);
+    public static int TOTASKINFO = 1;
+    private SimpleDateFormat DTF = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
     private CourseDB cdb = new CourseDB(this);
     private TaskDB tdb = new TaskDB(this);
 
@@ -56,7 +61,7 @@ public class LessonDetail extends AppCompatActivity {
 
     private String sname;
     private List<Map<String, Object>> taskItem = new ArrayList<>();
-    private CommonAdapter<Task> taskAdp;
+    private CommonAdapter<Object> taskAdp;
     private CourseModel course;
 
     private void initial(){
@@ -84,15 +89,33 @@ public class LessonDetail extends AppCompatActivity {
         courseDate.setText(course.getWeekDay());
 
         //任务列表初始化
-        taskAdp = new CommonAdapter<Task>(this, R.layout.course_detail_task_items, tdb.searchByParticipantName(sname)) {
+        taskAdp = new CommonAdapter<Object>(this, R.layout.course_detail_task_items, generateTaskList(sname, course.getCourseId())) {
             @Override
-            public void convert(ViewHolder viewHolder, Task task) {
-                TextView name = findViewById(R.id.course_detail_task_name);
-                name.setText(task.getTaskName());
-                TextView ddl = findViewById(R.id.course_detail_task_ddl);
-                ddl.setText(DTF.format(task.getTaskDDL()));
+            public void convert(ViewHolder viewHolder, Object object) {
+                if(object instanceof Task){
+                    LinearLayout outer1 = viewHolder.getView(R.id.course_detail_task_item_real);
+                    outer1.setVisibility(View.VISIBLE);
+                    LinearLayout outer2 = viewHolder.getView(R.id.course_detail_task_item_type_outer);
+                    outer2.setVisibility(View.GONE);
+                    Task task = (Task)object;
+                    TextView name = viewHolder.getView(R.id.course_detail_task_name);
+                    name.setText(task.getTaskName());
+                    TextView ddl = viewHolder.getView(R.id.course_detail_task_ddl);
+                    ddl.setText(DTF.format(task.getTaskDDL()));
+                }
+                else if(object instanceof String){
+                    LinearLayout outer1 = viewHolder.getView(R.id.course_detail_task_item_real);
+                    outer1.setVisibility(View.GONE);
+                    LinearLayout outer2 = viewHolder.getView(R.id.course_detail_task_item_type_outer);
+                    outer2.setVisibility(View.VISIBLE);
+                    String joinType = (String)object;
+                    TextView typeTextView = viewHolder.getView(R.id.course_detail_task_item_type);
+                    typeTextView.setText(joinType);
+                }
             }
         };
+        TaskRec.setLayoutManager(new LinearLayoutManager(this));
+        TaskRec.setAdapter(taskAdp);
     }
 
     private void setListener(){
@@ -170,6 +193,21 @@ public class LessonDetail extends AppCompatActivity {
             }
         });
 
+        taskAdp.setOnItemClickListener(new CommonAdapter.OnItemClickListener() {
+            @Override
+            public void onClick(int position) {
+                Intent intent = new Intent(LessonDetail.this, TaskDetail.class);
+                intent.putExtra("taskId", ((Task)taskAdp.getItem(position)).getId());
+                intent.putExtra("courseId", course.getCourseId());
+                intent.putExtra("sName", sname);
+                startActivityForResult(intent, TOTASKINFO);
+            }
+
+            @Override
+            public void onLongClick(int position) {
+
+            }
+        });
         newTaskBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -180,13 +218,17 @@ public class LessonDetail extends AppCompatActivity {
                 addTaskAlertDialog.setView(view_in);
                 final EditText editTaskName = view_in.findViewById(R.id.course_detail_add_task_dialog_taskname);
                 final EditText editTaskBrief = view_in.findViewById(R.id.course_detail_add_task_dialog_taskbrief);
-                final EditText editTaskDDLYear = view_in.findViewById(R.id.course_detail_add_task_dialog_taskDDL_year);
-                final EditText editTaskDDLMonth = view_in.findViewById(R.id.course_detail_add_task_dialog_taskDDL_month);
-                final EditText editTaskDDLDay = view_in.findViewById(R.id.course_detail_add_task_dialog_taskDDL_day);
+                final DatePicker editTaskDDL = view_in.findViewById(R.id.course_detail_add_task_dialog_taskDDL);
                 addTaskAlertDialog.setPositiveButton("添加任务", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        Date d = new Date(editTaskDDL.getYear()-1900, editTaskDDL.getMonth(), editTaskDDL.getDayOfMonth());
+                        int newId = tdb.newTask(new Task(1, course.getCourseId(), editTaskName.getText().toString(),
+                                editTaskBrief.getText().toString(), d , sname), true);
+                        //加入后得到id
+                        Task temp = new Task(newId, course.getCourseId(), editTaskName.getText().toString(),
+                                editTaskBrief.getText().toString(), d , sname);
+                        taskAdp.addItem(1, temp);
                     }
                 });
                 addTaskAlertDialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -204,5 +246,22 @@ public class LessonDetail extends AppCompatActivity {
         setContentView(R.layout.activity_lesson_detail);
         initial();
         setListener();
+    }
+
+    ArrayList<Object> generateTaskList(String sname, int courseId){
+        ArrayList<Object> res = new ArrayList<>();
+        res.add("已参加");
+        res.addAll(tdb.searchByJoinType(sname, courseId, 2));
+        res.add("被邀请");
+        res.addAll(tdb.searchByJoinType(sname, courseId, 1));
+        res.add("未参加");
+        res.addAll(tdb.searchByJoinType(sname, courseId, 0));
+        return res;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        initial();
     }
 }

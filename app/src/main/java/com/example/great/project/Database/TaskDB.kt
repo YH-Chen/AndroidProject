@@ -21,7 +21,7 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
     companion object
     {
         private val TASK_TABLE_NAME = "Task"
-        private val REL_TABLE_NAME = "TaskRelation"
+        private val REL_TABLE_NAME = "StuTaskRelation"
         private val DB_VERSION = 1
         private val DB_NAME = "SCHOOL.db"                  // 数据库名字
         private val DTF: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA)
@@ -37,7 +37,7 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
 
     //TODO 修改成text ，删除任务的时候级联
     //插入新任务
-    fun newTask(data: Task, acceptInvitation: Boolean)
+    fun newTask(data: Task, acceptInvitation: Boolean):Int
     {
         val db = writableDatabase
 
@@ -63,6 +63,8 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
 
         cursor.close()
         db.close()
+
+        return newId
     }
 
     //根据名字更新一个任务，返回是否成功
@@ -204,8 +206,8 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
     {
         val ans: LinkedList<String> = LinkedList()
         val db = readableDatabase
-        val c = db.rawQuery("select nickname from STUDENTS, TaskRelation " +
-            "where STUDENTS.sname = TaskRelation.sName and TaskRelation.tid = ?", arrayOf(taskID.toString()))
+        val c = db.rawQuery("select nickname from STUDENTS, StuTaskRelation " +
+            "where STUDENTS.sname = StuTaskRelation.sName and StuTaskRelation.tid = ?", arrayOf(taskID.toString()))
         if (c.moveToNext())
         {
             ans.add(c.getString(c.getColumnIndex("nickname")))
@@ -240,27 +242,27 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
     }
 
     //学生参与的任务: 0 没参加，1 被邀请，2 已参加
-    fun searchByJoinType(sname: String, joinType:Int):List<Task>{
+    fun searchByJoinType(sname: String, courseId:Int, joinType:Int):List<Task>{
         val db = readableDatabase
         val queryStatement = when (joinType) {
             0 -> "select * " +
                     "from Task " +
-                    "where _id not in " +
+                    "where courseId = ? and _id not in " +
                     "(select tid from StuTaskRelation " +
                     "where sName = ?)"
             1 -> "select * "+
                     "from Task " +
-                    "where _id in " +
+                    "where courseId = ? and  _id in " +
                     "(select tid from StuTaskRelation " +
                     "where acceptInvitation = 0 and sName = ?)"
             2 -> "select * "+
                     "from Task " +
-                    "where _id in " +
+                    "where courseId = ? and _id in " +
                     "(select tid from StuTaskRelation " +
                     "where acceptInvitation = 1 and sName = ?)"
             else -> ""
         }
-        val c = db.rawQuery(queryStatement, arrayOf(sname))
+        val c = db.rawQuery(queryStatement, arrayOf(courseId.toString(), sname))
         val res = cursorToList(c)
         c.close()
         db.close()

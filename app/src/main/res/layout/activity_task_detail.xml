@@ -77,17 +77,22 @@
     </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/taskDetail_taskInfoList"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/taskDetail_header"
         app:layout_constraintBottom_toTopOf="@id/taskDetail_editor"/>
     <EditText
         android:id="@+id/taskDetail_editor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="15"
+        android:ems="12"
         app:layout_constraintTop_toBottomOf="@id/taskDetail_taskInfoList"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/taskDetail_sendBtn"
+        app:layout_constraintHorizontal_chainStyle="packed"/>
     <Button
         android:id="@+id/taskDetail_sendBtn"
         android:layout_width="wrap_content"
@@ -95,5 +100,6 @@
         android:text="发送"
         app:layout_constraintLeft_toRightOf="@id/taskDetail_editor"
         app:layout_constraintTop_toTopOf="@id/taskDetail_editor"
-        app:layout_constraintBottom_toBottomOf="@id/taskDetail_editor"/>
+        app:layout_constraintBottom_toBottomOf="@id/taskDetail_editor"
+        app:layout_constraintEnd_toEndOf="parent"/>
 </android.support.constraint.ConstraintLayout>

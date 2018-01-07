@@ -2,6 +2,7 @@ package com.example.great.project.Activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -34,6 +35,9 @@ public class TaskDetail extends AppCompatActivity {
     //同时可以邀请用户加入。邀请时在任务_user表中新建条目，是否加入置否。
     //可以发布新的info，taskid在task_info表中更新内容
 
+    TaskDB myTaskDB = new TaskDB(TaskDetail.this);
+    TaskInfoDB myTaskInfoDB = new TaskInfoDB(TaskDetail.this);
+
     RelativeLayout headerLayout;
     TextView taskNameTextView;
     TextView briefTextView;
@@ -42,15 +46,14 @@ public class TaskDetail extends AppCompatActivity {
     RecyclerView taskInfoListView;
     EditText pusherEditor;
     Button sendBtn;
+    CommonAdapter<TaskInfo> taskInfoAdapter;
 
+    Task curr_task;
     int taskId = 0;
     int courseId = 0;
-    String stuId = "";
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_task_detail);
+    String sName = "";
 
+    void initial(){
         headerLayout = findViewById(R.id.taskDetail_header);
         taskNameTextView = findViewById(R.id.taskDetail_taskName);
         briefTextView = findViewById(R.id.taskDetail_brief);
@@ -60,45 +63,61 @@ public class TaskDetail extends AppCompatActivity {
         pusherEditor = findViewById(R.id.taskDetail_editor);
         sendBtn = findViewById(R.id.taskDetail_sendBtn);
 
-        TaskDB myTaskDB = new TaskDB(TaskDetail.this);
-        final TaskInfoDB myTaskInfoDB = new TaskInfoDB(TaskDetail.this);
-        Bundle extras = getIntent().getExtras();
-        if(extras != null){
-            taskId = extras.getInt("taskId");
-            courseId = extras.getInt("courseId");
-            stuId = extras.getString("stuId");
-        }
-        Task currTask = myTaskDB.searchByTaskID(taskId);
-        taskNameTextView.setText(currTask.getTaskName());
-        briefTextView.setText(currTask.getTaskBrief());
-        creatorTextView.setText(currTask.getCreatorName());
+        taskNameTextView.setText(curr_task.getTaskName());
+        briefTextView.setText(curr_task.getTaskBrief());
+        creatorTextView.setText(curr_task.getCreatorName());
 
+        //参与者列表
         List<String> participantNameList = myTaskDB.searchParticipantsByTaskID(taskId);
         SimpleAdapter participantSimpleAdaptor = new SimpleAdapter(this, turnStringsIntoList(participantNameList),
                 R.layout.task_detail_participants_listitem,new String[]{"name"}, new int[]{R.id.taskDetail_participants_name});
         participantListView.setAdapter(participantSimpleAdaptor);
 
-//        ArrayList<TaskInfo> taskInfoList = myTaskInfoDB.queryByTask(taskId);
-        CommonAdapter<TaskInfo> taskInfoAdapter = new CommonAdapter<TaskInfo>(this, R.layout.task_info_item_layout, myTaskInfoDB.queryByTask(taskId)){
+        //任务信息列表
+        taskInfoAdapter = new CommonAdapter<TaskInfo>(this, R.layout.task_info_item_layout, myTaskInfoDB.queryByTask(taskId)){
             @Override
             public void convert(ViewHolder viewHolder, TaskInfo taskInfo) {
-                TextView content = findViewById(R.id.taskDetail_taskInfo_content);
+                TextView content = viewHolder.getView(R.id.taskDetail_taskInfo_content);
                 content.setText(taskInfo.getContent());
-                TextView pusher = findViewById(R.id.taskDetail_taskInfo_pusher);
+                TextView pusher = viewHolder.getView(R.id.taskDetail_taskInfo_pusher);
                 pusher.setText(taskInfo.getPusherId());
             }
         };
+        taskInfoListView.setLayoutManager(new LinearLayoutManager(this));
         taskInfoListView.setAdapter(taskInfoAdapter);
+        taskInfoListView.smoothScrollToPosition(taskInfoAdapter.getItemCount()-1);
+    }
 
+    void setListeners(){
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String inputStr = pusherEditor.getText().toString();
                 if(!inputStr.equals("")){
-                    myTaskInfoDB.addTaskInfo(new TaskInfo(1, taskId, stuId, inputStr));
+                    int newId = myTaskInfoDB.addTaskInfo(new TaskInfo(1, taskId, sName, inputStr));
+                    TaskInfo temp = new TaskInfo(newId, taskId, sName, inputStr);
+                    taskInfoAdapter.addItem(taskInfoAdapter.getItemCount(), temp);
+                    pusherEditor.setText("");
+                    taskInfoListView.smoothScrollToPosition(taskInfoAdapter.getItemCount()-1);
                 }
             }
         });
+    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_task_detail);
+
+        Bundle extras = getIntent().getExtras();
+        if(extras != null){
+            taskId = extras.getInt("taskId");
+            courseId = extras.getInt("courseId");
+            sName = extras.getString("sName");
+        }
+        curr_task = myTaskDB.searchByTaskID(taskId);
+
+        initial();
+        setListeners();
     }
 
     ArrayList<Map<String, Object>> turnStringsIntoList(List<String> raw_list){

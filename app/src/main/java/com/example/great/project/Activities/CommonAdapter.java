@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.great.project.Model.Task;
+
 import java.util.List;
 
 /**
@@ -71,6 +73,17 @@ public abstract class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder>{
         this.mOnItemClickListener = onItemClickListener;
     }
 
+    public void addItem(int index, T t){
+        mDatas.add(index, t);
+        notifyDataSetChanged();
+    }
+    public void addItem(T t){
+        mDatas.add(t);
+        notifyDataSetChanged();
+    }
+    public T getItem(int index){
+        return mDatas.get(index);
+    }
 }
 
 class ViewHolder extends RecyclerView.ViewHolder {
