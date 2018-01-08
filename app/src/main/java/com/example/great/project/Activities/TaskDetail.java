@@ -99,7 +99,7 @@ public class TaskDetail extends AppCompatActivity {
             public void convert(ViewHolder viewHolder, TaskInfo taskInfo) {
                 RelativeLayout thisOuterLayout = viewHolder.getView(R.id.taskDetail_this_outer);
                 RelativeLayout thatOuterLayout = viewHolder.getView(R.id.taskDetail_that_outer);
-                Student stuInTaskInfoList = myStudentDB.queryStu(sName).get(0);
+                Student stuInTaskInfoList = myStudentDB.queryStu(taskInfo.getPusherId()).get(0);
                 String HeadPath = stuInTaskInfoList.getHeadImage();
                 Bitmap bm;
                 if(HeadPath != null){
@@ -208,7 +208,7 @@ public class TaskDetail extends AppCompatActivity {
                     String tempDate = DTF.format(curr_task.getTaskDDL());
                     String[] tempDateSplit = tempDate.split("-");
                     editTaskDDL.init(Integer.parseInt(tempDateSplit[0]), Integer.parseInt(tempDateSplit[1])-1, Integer.parseInt(tempDateSplit[2]), null);
-                    addTaskAlertDialog.setPositiveButton("添加任务", new DialogInterface.OnClickListener() {
+                    addTaskAlertDialog.setPositiveButton("确认修改", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Date d = new Date(editTaskDDL.getYear()-1900, editTaskDDL.getMonth(), editTaskDDL.getDayOfMonth());
