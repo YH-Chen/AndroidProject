@@ -48,15 +48,14 @@ import com.example.great.project.Database.StudentDB;
 import com.example.great.project.Database.TaskDB;
 import com.example.great.project.Model.CourseModel;
 import com.example.great.project.Model.Student;
-import com.example.great.project.Model.Task;
 import com.example.great.project.R;
+import com.example.great.project.Service.MusicService;
 import com.example.great.project.View.TitleBar;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,19 +152,7 @@ public class MainActivity extends BaseActivity {
     static boolean hasPermission = true;
     static boolean IsBind = false;
 
-    private ServiceConnection sc = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d("service","connected");
-            mBinder = (MusicService.MyBinder) service;
-            IsBind = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            sc = null;
-        }
-    };
+    private ServiceConnection sc;
 
     ImageView AlbumImage;
     TextView CurrentTime, Status, CompleteTime, RemainTime;
@@ -493,7 +480,6 @@ public class MainActivity extends BaseActivity {
                 titleBar.setLeftImageResource(0);
                 titleBar.setLeftText("");
                 Toast.makeText(MainActivity.this, "添加课程成功", Toast.LENGTH_SHORT).show();
-//                backCourse.setVisibility(View.INVISIBLE);
                 List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
                 courseItem.clear();
                 for(int i = 0; i < courselist.size(); i++){
@@ -523,7 +509,6 @@ public class MainActivity extends BaseActivity {
                     Toast.makeText(MainActivity.this, "进入全校课程列表", Toast.LENGTH_SHORT).show();
                     titleBar.setLeftImageResource(R.drawable.ic_left_black);
                     titleBar.setLeftText("返回");
-//                    backCourse.setVisibility(View.VISIBLE);
                     courseRecy.setVisibility(View.INVISIBLE);
                     courseExisted.setVisibility(View.VISIBLE);
                     courseItem.clear();
@@ -543,8 +528,6 @@ public class MainActivity extends BaseActivity {
                     }
                     courseExistedAdp.notifyDataSetChanged();
                     addBtnFlag = 1;
-//                    backCourse.setVisibility(View.VISIBLE);
-
                 }
                 else{
                     addCourse.setTitle("添加自定义课程");
@@ -576,7 +559,6 @@ public class MainActivity extends BaseActivity {
                             titleBar.setLeftImageResource(0);
                             titleBar.setLeftText("");
                             courseCenterHint.setVisibility(View.INVISIBLE);
-//                            backCourse.setVisibility(View.INVISIBLE);
                             courseRecy.setVisibility(View.VISIBLE);
                             courseExisted.setVisibility(View.INVISIBLE);
                             List<CourseModel> courselist = cdb.queryCourseBySname(student.getSName());
@@ -639,9 +621,23 @@ public class MainActivity extends BaseActivity {
     }
 
     /*
-    番茄学习
+     *番茄学习
      */
-    private void settingStudy(){
+    @SuppressLint("HandlerLeak")
+    private void StudyPage(){
+        sc = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                Log.d("service","connected");
+                mBinder = (MusicService.MyBinder) service;
+                IsBind = true;
+            }
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                sc = null;
+            }
+        };
+
         Intent intent = new Intent(this,MusicService.class);
         startService(intent);
         bindService(intent,sc, Context.BIND_AUTO_CREATE);
@@ -665,15 +661,17 @@ public class MainActivity extends BaseActivity {
                         try {
                             Parcel data = Parcel.obtain();
                             Parcel reply = Parcel.obtain();
-                            mBinder.transact(104, data, reply, 0);//执行界面刷新操作
-                            int currenttime = reply.readInt();
-                            CurrentTime.setText(time_format.format(currenttime));
-                            int completetime = reply.readInt();
-                            CompleteTime.setText(time_format.format(completetime));
-                            Music.setProgress(currenttime);
-                            Music.setMax(completetime);
-                            if(reply.readInt() == 1){//is playing
-                                ImageRotation.resume();
+                            if (mBinder!=null) {
+                                mBinder.transact(104, data, reply, 0);//执行界面刷新操作
+                                int currenttime = reply.readInt();
+                                CurrentTime.setText(time_format.format(currenttime));
+                                int completetime = reply.readInt();
+                                CompleteTime.setText(time_format.format(completetime));
+                                Music.setProgress(currenttime);
+                                Music.setMax(completetime);
+                                if(reply.readInt() == 1){//is playing
+                                    ImageRotation.resume();
+                                }
                             }
                         } catch (RemoteException e) {
                             e.printStackTrace();
@@ -863,9 +861,6 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
-
-
     /*
      导航栏设置界面
      */
@@ -912,8 +907,8 @@ public class MainActivity extends BaseActivity {
         initial();
         setListener();
         switchPage();
+        StudyPage();
         settingPage();
-        settingStudy();
     }
 
 
@@ -989,6 +984,7 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    // 双击退出
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode==KeyEvent.KEYCODE_BACK && event.getAction()==KeyEvent.ACTION_DOWN){

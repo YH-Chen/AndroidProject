@@ -34,7 +34,7 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <service
-            android:name=".Activities.MusicService"
+            android:name=".Service.MusicService"
             android:enabled="true"
             android:exported="true"></service>
     </application>

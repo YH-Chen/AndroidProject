@@ -6,6 +6,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.great.project.Database.StudentDB;
@@ -19,24 +20,30 @@ public class Login extends BaseActivity {
 
     //记录用户首次点击返回键的时间
     private long firstTime=0;
-    private String EXIT_ACTION = "action.exit";
     private Button login;
     private Button reg;
     private Button confirmreg;
+    private Button back;
+    private LinearLayout loginBtns;
+    private LinearLayout regBtns;
     private EditText username;
     private EditText pwd;
     private EditText confirmpwd;
+
     private StudentDB sdb = new StudentDB(this);
     private List<Student> stuList = new ArrayList<>();
 
     private void initial(){
         login = findViewById(R.id.login_login);
         reg = findViewById(R.id.login_reg);
+        loginBtns = findViewById(R.id.login_btns);
         confirmreg = findViewById(R.id.login_confirmreg);
         username = findViewById(R.id.login_username);
         pwd = findViewById(R.id.login_pwd);
         confirmpwd = findViewById(R.id.login_confirmpwd);
-        confirmreg.setVisibility(View.GONE);
+        back = findViewById(R.id.back_login);
+        regBtns = findViewById(R.id.reg_btns);
+        regBtns.setVisibility(View.GONE);
         confirmpwd.setVisibility(View.GONE);
     }
 
@@ -74,13 +81,9 @@ public class Login extends BaseActivity {
         reg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                confirmreg.setVisibility(View.VISIBLE);
+                regBtns.setVisibility(View.VISIBLE);
                 confirmpwd.setVisibility(View.VISIBLE);
-                login.setVisibility(View.INVISIBLE);
-                reg.setVisibility(View.INVISIBLE);
-                if (pwd.hasFocus()) {
-                    confirmpwd.setFocusable(true);
-                }
+                loginBtns.setVisibility(View.GONE);
             }
         });
 
@@ -109,6 +112,15 @@ public class Login extends BaseActivity {
                 }
             }
         });
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                regBtns.setVisibility(View.GONE);
+                confirmpwd.setVisibility(View.GONE);
+                loginBtns.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     @Override
@@ -126,6 +138,7 @@ public class Login extends BaseActivity {
                 Toast.makeText(Login.this,"再按一次退出程序", Toast.LENGTH_SHORT).show();
                 firstTime=System.currentTimeMillis();
             }else{
+                String EXIT_ACTION = "action.exit";
                 Intent intent = new Intent(EXIT_ACTION);
                 sendBroadcast(intent);
             }

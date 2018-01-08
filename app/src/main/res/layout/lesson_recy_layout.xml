@@ -4,45 +4,80 @@
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cardView"
-    app:cardBackgroundColor="#90ffffff">
+    app:cardBackgroundColor="#90ffffff"
+    android:layout_margin="2dp">
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="90dp"
+        android:layout_height="108dp"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingEnd="20dp"
+        android:paddingStart="20dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
             android:text="lesson_name"
-            android:textSize="20sp"
+            android:layout_marginTop="2dp"
+            android:textSize="25sp"
             android:id="@+id/lesson_name"/>
 
-        <TextView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:text="lesson_time"
-            android:id="@+id/lesson_time"/>
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp"
+            android:layout_gravity="left"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_teacher"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="lesson_teacher"
+                android:id="@+id/lesson_teacher"/>
+        </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:text="lesson_room"
-            android:id="@+id/lesson_room"/>
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp"
+            android:layout_gravity="left"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_clock"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="lesson_time"
+                android:id="@+id/lesson_time"/>
+        </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:text="lesson_teacher"
-            android:id="@+id/lesson_teacher"/>
-
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp"
+            android:layout_gravity="left"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_address"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="lesson_room"
+                android:id="@+id/lesson_room"/>
+        </LinearLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>
