@@ -1,13 +1,21 @@
 package com.example.great.project.Activities;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Parcel;
+import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
@@ -24,10 +32,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +54,7 @@ import com.example.great.project.View.TitleBar;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -132,6 +143,42 @@ public class MainActivity extends BaseActivity {
     private ViewPager vpager;
     private BottomNavigationView navigation;
     private List<View> viewList;
+
+    //view3
+    private static String[] PERMISSIONS_STORAGE = {
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE" };
+    private static final int REQUEST_EXTERNAL_STORASGE = 1;
+    private MusicService.MyBinder mBinder;
+    static boolean hasPermission = true;
+    static boolean IsBind = false;
+
+    private ServiceConnection sc = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d("service","connected");
+            mBinder = (MusicService.MyBinder) service;
+            IsBind = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            sc = null;
+        }
+    };
+
+    ImageView AlbumImage;
+    TextView CurrentTime, Status, CompleteTime, RemainTime;
+    SeekBar Music;
+    Button Play, Stop, Quit;
+    SimpleDateFormat time_format = new SimpleDateFormat("mm:ss");
+    ObjectAnimator ImageRotation;
+    private long timeusedinsec = 1500;
+    private Handler mHandler ;
+    private boolean isstop = true;
+
+
+
 
 
     // view4
@@ -251,8 +298,22 @@ public class MainActivity extends BaseActivity {
         }*/
 
         // view3 番茄学习
-
-            //TODO
+        AlbumImage = (ImageView)view3.findViewById(R.id.AlbumImageView);
+        CurrentTime = (TextView)view3.findViewById(R.id.CurrentTimeTextView);
+        Status = (TextView)view3.findViewById(R.id.StatusTextView);
+        CompleteTime = (TextView)view3.findViewById(R.id.CompleteTimeTextView);
+        Music = (SeekBar)view3.findViewById(R.id.MusicSeekBar);
+        Play = (Button)view3.findViewById(R.id.PlayButton);
+        Stop = (Button)view3.findViewById(R.id.StopButton);
+        Quit = (Button)view3.findViewById(R.id.QuitButton);
+        RemainTime = (TextView)view3.findViewById(R.id.RemainTimeTextView);
+        //初始化图片旋转动画，使用ObjectAnimator实现
+        ImageRotation = ObjectAnimator.ofFloat(AlbumImage, "rotation", 0.0f,360.0f);
+        ImageRotation.setDuration(10000);
+        ImageRotation.setRepeatCount(-1);
+        ImageRotation.setInterpolator(new LinearInterpolator());
+        ImageRotation.start();
+        ImageRotation.pause();
 
         // view4  用户设置
         headImage = (ImageView) view4.findViewById(R.id.headImage);
@@ -578,6 +639,234 @@ public class MainActivity extends BaseActivity {
     }
 
     /*
+    番茄学习
+     */
+    private void settingStudy(){
+        Intent intent = new Intent(this,MusicService.class);
+        startService(intent);
+        bindService(intent,sc, Context.BIND_AUTO_CREATE);
+        if(!IsBind){
+            try{
+                Thread.sleep(100);
+                bindService(intent,sc, Context.BIND_AUTO_CREATE);
+            }catch (Exception e){
+                //
+            }
+            bindService(intent,sc, Context.BIND_AUTO_CREATE);
+        }
+
+
+        mHandler = new Handler(){
+            @Override
+            public void handleMessage (Message msg){
+                super.handleMessage(msg);
+                switch (msg.what){
+                    case 123:
+                        try {
+                            Parcel data = Parcel.obtain();
+                            Parcel reply = Parcel.obtain();
+                            mBinder.transact(104, data, reply, 0);//执行界面刷新操作
+                            int currenttime = reply.readInt();
+                            CurrentTime.setText(time_format.format(currenttime));
+                            int completetime = reply.readInt();
+                            CompleteTime.setText(time_format.format(completetime));
+                            Music.setProgress(currenttime);
+                            Music.setMax(completetime);
+                            if(reply.readInt() == 1){//is playing
+                                ImageRotation.resume();
+                            }
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case 1:
+                        // 添加更新ui的代码
+                        if (!isstop) {
+                            timeusedinsec -= 1;
+                            int minute = (int) (timeusedinsec / 60) % 60;
+                            int second = (int) (timeusedinsec % 60);
+                            if (minute < 10){
+                                if(second < 10)
+                                    RemainTime.setText("0" + minute + ":0" + second);
+                                else
+                                    RemainTime.setText("0" + minute + ":" + second);
+                            }
+                            else {
+                                if(second < 10)
+                                    RemainTime.setText("" + minute + ":0" + second);
+                                else
+                                    RemainTime.setText("" + minute + ":" + second);
+                            }
+
+                            mHandler.sendEmptyMessageDelayed(1, 1000);
+                        }
+                        break;
+                    case 0:
+                        break;
+
+                }
+            }
+        };
+
+        RemainTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String aaa = RemainTime.getText().toString();
+                if(aaa.equals("25:00")){
+                    mHandler.removeMessages(1);
+                    mHandler.sendEmptyMessage(1);
+                    isstop = false;
+                    //RemainTime.setText("pause");
+                }else {
+                    AlertDialog.Builder checkStop = new AlertDialog.Builder(MainActivity.this);
+                    checkStop.setTitle("确认结束此次学习？")
+                            .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mHandler.removeMessages(1);
+                                    mHandler.sendEmptyMessage(0);
+                                    isstop = true;
+                                    RemainTime.setText("25:00");
+                                    timeusedinsec = 1500;
+                                }
+                            })
+                            .setNegativeButton("再学习一会", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    isstop = false;
+                                }
+                            }).show();
+
+                }
+
+
+            }
+        });
+
+
+
+        final Thread mThread = new Thread(){
+            @Override
+            public void run(){
+                while(true){
+                    try {
+                        Thread.sleep(100);
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                    if(sc != null && hasPermission == true){
+                        mHandler.obtainMessage(123).sendToTarget();
+                    }
+                }
+            }
+
+        };
+        mThread.start();
+
+        Music.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser){
+                    try {
+                        Parcel data = Parcel.obtain();
+                        Parcel reply = Parcel.obtain();
+                        data.writeInt(progress);
+                        mBinder.transact(105, data, reply,0);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+
+
+        //开始定义每个按钮的执行功能
+        //播放和暂停键
+        Play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    Parcel data = Parcel.obtain();
+                    Parcel reply = Parcel.obtain();
+                    mBinder.transact(101 ,data, reply, 0);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                if(v.getTag().toString().equals("1")){
+                    ((Button)v).setText("PAUSE");
+                    v.setTag(0);
+                    ImageRotation.resume();
+                    Status.setText("Playing");
+                }
+                else{
+                    ((Button)v).setText("PLAY");
+                    v.setTag(1);
+                    ImageRotation.pause();
+                    Status.setText("Paused");
+                }
+            }
+        });
+        //停止键
+        Stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    Parcel data = Parcel.obtain();
+                    Parcel reply = Parcel.obtain();
+                    mBinder.transact(102 ,data, reply, 0);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                Play.setText("PLAY");
+                Play.setTag("1");
+                Status.setText("Stopped");
+                ImageRotation.end();
+                ImageRotation.start();
+                ImageRotation.pause();//重置
+            }
+        });
+
+        //退出键
+        Quit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    Parcel data = Parcel.obtain();
+                    Parcel reply = Parcel.obtain();
+                    mBinder.transact(103 ,data, reply, 0);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                MainActivity.this.getApplication().unbindService(sc);
+                sc = null;
+                try{
+                    MainActivity.this.finish();
+                    System.exit(0);
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+
+
+
+
+    /*
      导航栏设置界面
      */
     private void settingPage() {
@@ -624,6 +913,7 @@ public class MainActivity extends BaseActivity {
         setListener();
         switchPage();
         settingPage();
+        settingStudy();
     }
 
 
