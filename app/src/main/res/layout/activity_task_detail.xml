@@ -5,25 +5,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.great.project.Activities.TaskDetail">
+    <com.example.great.project.View.TitleBar
+        android:id="@+id/taskDetail_titlebar"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:background="@color/colorPrimaryDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
     <RelativeLayout
         android:id="@+id/taskDetail_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/taskDetail_titlebar"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:background="@color/colorPrimaryDark"
         android:padding="10dp"
         android:orientation="vertical">
-        <TextView
-            android:id="@+id/taskDetail_taskName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="任务名称"
-            android:textSize="40sp"
-            android:textColor="#FFFFFF"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"/>
         <TextView
             android:id="@+id/taskDetail_brief"
             android:layout_width="wrap_content"
@@ -32,7 +31,7 @@
             android:textSize="20sp"
             android:textColor="#C0C0C0"
             android:layout_marginStart="20dp"
-            android:layout_below="@id/taskDetail_taskName"/>
+            android:layout_alignParentTop="true"/>
         <TextView
             android:id="@+id/taskDetail_hint1"
             android:layout_width="wrap_content"
@@ -42,6 +41,15 @@
             android:textColor="#FFFFFF"
             android:layout_marginStart="20dp"
             android:layout_below="@id/taskDetail_brief"/>
+        <TextView
+            android:id="@+id/taskDetail_DDL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2000"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:layout_toEndOf="@id/taskDetail_hint1"
+            android:layout_alignBaseline="@id/taskDetail_hint1"/>
         <TextView
             android:id="@+id/taskDetail_hint2"
             android:layout_width="wrap_content"
@@ -72,22 +80,27 @@
         <com.example.great.project.Adapter.HorizontalListView
             android:id="@+id/taskDetail_participants"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
+            android:layout_height="30dp"
             android:layout_below="@id/taskDetail_creator"/>
     </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/taskDetail_taskInfoList"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/taskDetail_header"
         app:layout_constraintBottom_toTopOf="@id/taskDetail_editor"/>
     <EditText
         android:id="@+id/taskDetail_editor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="15"
+        android:ems="12"
         app:layout_constraintTop_toBottomOf="@id/taskDetail_taskInfoList"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/taskDetail_sendBtn"
+        app:layout_constraintHorizontal_chainStyle="packed"/>
     <Button
         android:id="@+id/taskDetail_sendBtn"
         android:layout_width="wrap_content"
@@ -95,5 +108,6 @@
         android:text="发送"
         app:layout_constraintLeft_toRightOf="@id/taskDetail_editor"
         app:layout_constraintTop_toTopOf="@id/taskDetail_editor"
-        app:layout_constraintBottom_toBottomOf="@id/taskDetail_editor"/>
+        app:layout_constraintBottom_toBottomOf="@id/taskDetail_editor"
+        app:layout_constraintEnd_toEndOf="parent"/>
 </android.support.constraint.ConstraintLayout>

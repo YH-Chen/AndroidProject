@@ -222,7 +222,7 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <com.example.great.project.View.TitleBar
-        android:id="@+id/course_titlebar"
+        android:id="@+id/course_detail_titlebar"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         app:layout_constraintEnd_toEndOf="parent"

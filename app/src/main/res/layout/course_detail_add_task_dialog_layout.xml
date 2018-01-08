@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="10dp"
+    android:layout_margin="20dp"
+    android:padding="10dp"
     android:orientation="vertical">
     <LinearLayout
         android:layout_width="wrap_content"
@@ -18,7 +19,7 @@
             android:id="@+id/course_detail_add_task_dialog_taskname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="26"/>
+            android:ems="12"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
@@ -34,50 +35,13 @@
             android:id="@+id/course_detail_add_task_dialog_taskbrief"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="26"/>
+            android:ems="12"/>
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <DatePicker
+        android:id="@+id/course_detail_add_task_dialog_taskDDL"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ddl:"
-            android:textSize="20sp"
-            />
-        <EditText
-            android:id="@+id/course_detail_add_task_dialog_taskDDL_year"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="4"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="年"
-            android:textSize="20sp"
-            />
-        <EditText
-            android:id="@+id/course_detail_add_task_dialog_taskDDL_month"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="4"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="月"
-            android:textSize="20sp"
-            />
-        <EditText
-            android:id="@+id/course_detail_add_task_dialog_taskDDL_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="4"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="日"
-            android:textSize="20sp"
-            />
-    </LinearLayout>
+        android:calendarViewShown="false"
+        android:datePickerMode="spinner"/>
+
 </LinearLayout>
