@@ -26,7 +26,7 @@ class TaskInfoDB(c: Context) : SQLiteOpenHelper(c, DB_NAME, null, DB_VERSION) {
         val CREATE_TABLE = ("create table " + TABLE_NAME
                 + "(_id integer primary key AUTOINCREMENT, "
                 + "taskId integer, "
-                + "pusherId integer, "
+                + "pusherId text, "
                 + "content text);")
         db!!.execSQL(CREATE_TABLE)
     }
