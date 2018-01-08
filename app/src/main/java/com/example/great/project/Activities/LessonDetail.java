@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -120,7 +119,9 @@ public class LessonDetail extends AppCompatActivity {
     }
 
     private void setListener(){
+        titlebar.setTitle(course.getCourseName());
         titlebar.setLeftText("返回");
+        titlebar.setLeftImageResource(R.drawable.ic_left_black);
         titlebar.setLeftClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -268,14 +269,14 @@ public class LessonDetail extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder addTaskAlertDialog = new AlertDialog.Builder(LessonDetail.this);
-                addTaskAlertDialog.setTitle("添加任务");
+                addTaskAlertDialog.setTitle("任务");
                 LayoutInflater factor = LayoutInflater.from(LessonDetail.this);
                 View view_in = factor.inflate(R.layout.course_detail_add_task_dialog_layout, null);
                 addTaskAlertDialog.setView(view_in);
                 final EditText editTaskName = view_in.findViewById(R.id.course_detail_add_task_dialog_taskname);
                 final EditText editTaskBrief = view_in.findViewById(R.id.course_detail_add_task_dialog_taskbrief);
                 final DatePicker editTaskDDL = view_in.findViewById(R.id.course_detail_add_task_dialog_taskDDL);
-                addTaskAlertDialog.setPositiveButton("添加任务", new DialogInterface.OnClickListener() {
+                addTaskAlertDialog.setPositiveButton("添加", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Date d = new Date(editTaskDDL.getYear()-1900, editTaskDDL.getMonth(), editTaskDDL.getDayOfMonth());

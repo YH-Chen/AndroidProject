@@ -200,7 +200,8 @@ public class MainActivity extends BaseActivity {
         disableShiftMode(navigation);           // 去除原动画
         vpager = (ViewPager) findViewById(R.id.viewpager);
         titleBar = (TitleBar)findViewById(R.id.titlebar);
-        //titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        titleBar.setDividerColor(getResources().getColor(R.color.grey));
+        titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
 
         LayoutInflater inflater = getLayoutInflater();
@@ -378,12 +379,7 @@ public class MainActivity extends BaseActivity {
                 container.removeView(viewList.get(position));
             }
         };
-
         vpager.setAdapter(pagerAdapter);
-    }
-
-
-    private void setListener(){
         vpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -450,6 +446,10 @@ public class MainActivity extends BaseActivity {
                 return true;
             }
         });
+    }
+
+
+    private void setListener(){
         courseListAdp.setOnItemClickListener(new CommonAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
@@ -530,7 +530,7 @@ public class MainActivity extends BaseActivity {
                     addBtnFlag = 1;
                 }
                 else{
-                    addCourse.setTitle("添加自定义课程");
+                    addCourse.setTitle("自定义课程");
                     LayoutInflater factor = LayoutInflater.from(MainActivity.this);
                     View view_in = factor.inflate(R.layout.course_edit_dialog_layout, null);
                     addCourse.setView(view_in);
@@ -542,7 +542,7 @@ public class MainActivity extends BaseActivity {
                     final EditText editCourseEndMinute = view_in.findViewById(R.id.course_edit_end_minute);
                     final EditText editCourseTeacher = view_in.findViewById(R.id.course_edit_teacher);
                     final Spinner editCourseweekday = view_in.findViewById(R.id.course_edit_weekday);
-                    addCourse.setPositiveButton("添加课程", new DialogInterface.OnClickListener() {
+                    addCourse.setPositiveButton("添加", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             CourseModel course = new CourseModel();
@@ -748,7 +748,7 @@ public class MainActivity extends BaseActivity {
             public void run(){
                 while(true){
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                     }catch (InterruptedException e){
                         e.printStackTrace();
                     }

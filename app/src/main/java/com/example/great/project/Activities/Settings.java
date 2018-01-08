@@ -5,8 +5,10 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -42,6 +44,8 @@ public class Settings extends AppCompatActivity {
     private static final int CHOOSE_PHOTO = 0;
     private static final int TAKE_PHOTO = 1;
     private static final int CROP_SMALL_PHOTO = 2;
+    private static final int CHOOSE_PHOTO_BG = 3;
+    private static final int TAKE_PHOTO_BG = 4;
     private static boolean hasPermission = false;
     private Uri imageUri;
     private Bitmap bitmap;
@@ -60,6 +64,7 @@ public class Settings extends AppCompatActivity {
     private LinearLayout main_layout;
     private LinearLayout setpw_layout;
 
+    private View mainView;
     /*
     动态申请权限
      */
@@ -83,6 +88,8 @@ public class Settings extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        mainView = getLayoutInflater().inflate(R.layout.activity_main, null);
+
         sdb = new StudentDB(this);
         Log.d("TAG", String.valueOf(Environment.getExternalStorageDirectory()));
         // 跳转传参
@@ -104,6 +111,7 @@ public class Settings extends AppCompatActivity {
         TextView showSName = (TextView) findViewById(R.id.showSName);
         final TextView showNickName = (TextView) findViewById(R.id.showNickName);
         TextView pwbtn = (TextView) findViewById(R.id.pwbtn);
+        TextView bgbtn = (TextView) findViewById(R.id.bgImage); 
 
 
         showSName.setText(sName);
@@ -149,7 +157,7 @@ public class Settings extends AppCompatActivity {
                                         // 没有读取权限，申请权限弹出对话框
                                         ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
                                     } else {
-                                        choose_photo();
+                                        choose_photo(CHOOSE_PHOTO);
                                         Log.d("TAG", "CHOOSE_PHOTO");
                                     }
                                 }
@@ -168,7 +176,7 @@ public class Settings extends AppCompatActivity {
                                         // 没有读取权限，申请权限弹出对话框
                                         ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.CAMERA}, 1);
                                     } else {
-                                        take_photo();
+                                        take_photo(TAKE_PHOTO);
                                         Log.d("TAG", "TAKE_PHOTO");
                                     }
                                 }
@@ -287,22 +295,76 @@ public class Settings extends AppCompatActivity {
                 setpw_layout.setVisibility(View.GONE);
             }
         });
+        
+        /*
+         *更改背景
+         */
+        bgbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                simple.setTitle("更换背景");
+                simple.setNegativeButton("取消", null);
+                simple.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case CHOOSE_PHOTO:    // 选择本地照片
+                                try {
+                                    int permission = ActivityCompat.checkSelfPermission(Settings.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+                                    if (permission != PackageManager.PERMISSION_GRANTED) {
+                                        // 没有读取权限，申请权限弹出对话框
+                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                                    } else {
+                                        choose_photo(CHOOSE_PHOTO_BG);
+                                        Log.d("TAG", "CHOOSE_PHOTO_BG");
+                                    }
+                                }
+                                catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case TAKE_PHOTO:      // 拍照
+                                try {
+                                    int permission = ActivityCompat.checkSelfPermission(Settings.this, Manifest.permission.CAMERA);
+                                    if (permission != PackageManager.PERMISSION_GRANTED) {
+                                        // 没有读取权限，申请权限弹出对话框
+                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.CAMERA}, 1);
+                                    } else {
+                                        take_photo(TAKE_PHOTO_BG);
+                                        Log.d("TAG", "TAKE_PHOTO_BG");
+                                    }
+                                }
+                                catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                        }
+                    }
+                }).show();
+            }
+        });
     }
 
-    private void take_photo(){
+    private void take_photo(int mode){
         // 创建File对象，用于存储拍照后的图片
         imageUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "output_image.png"));
         // 启动相机程序
         Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-        startActivityForResult(openCameraIntent, TAKE_PHOTO);
+        if (mode == TAKE_PHOTO)
+            startActivityForResult(openCameraIntent, TAKE_PHOTO);
+        else
+            startActivityForResult(openCameraIntent, TAKE_PHOTO_BG);
     }
 
-    private void choose_photo(){
+    private void choose_photo(int mode){
         //启动相册
         Intent openAlbumIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 //        openAlbumIntent.setType("image/*");
-        startActivityForResult(openAlbumIntent, CHOOSE_PHOTO);
+        if (mode == CHOOSE_PHOTO)
+            startActivityForResult(openAlbumIntent, CHOOSE_PHOTO);
+        else
+            startActivityForResult(openAlbumIntent, CHOOSE_PHOTO_BG);
     }
 
     /*
@@ -364,7 +426,7 @@ public class Settings extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        switch (requestCode){
+        switch (requestCode) {
             case CHOOSE_PHOTO:
                 if (resultCode == RESULT_OK)
                     cutImage(data.getData());
@@ -377,13 +439,33 @@ public class Settings extends AppCompatActivity {
                     setImageToView(data);
                 }
                 break;
+            case CHOOSE_PHOTO_BG:
+                if (data != null) {
+                    Bundle extras = data.getExtras();
+                    if (extras != null) {
+                        bitmap = extras.getParcelable("data");
+                        BitmapDrawable bd = new BitmapDrawable(Resources.getSystem(), bitmap);
+                        mainView.setBackground(bd);
+                    }
+                    Log.d("TAG", "CHOOSE_PHOTO_BG OK!");
+                }
+                break;
+            case TAKE_PHOTO_BG:
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                BitmapDrawable bd = new BitmapDrawable(Resources.getSystem(), bitmap);
+                mainView.setBackground(bd);
+                Log.d("TAG", "TAKE_PHOTO_BG OK!");
+                break;
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            choose_photo();
             Log.d("TAG", "onRequestPermissionsResult");
         } else {
             // 拒绝权限
