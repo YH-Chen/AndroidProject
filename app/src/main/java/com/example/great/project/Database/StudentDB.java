@@ -64,7 +64,7 @@ public class StudentDB extends SQLiteOpenHelper {
         String CREATE_TI_TABLE = "create table " + TI_TABLE_NAME
                 + "(_id integer primary key AUTOINCREMENT, "
                 + "taskId integer, "
-                + "pusherId integer, "
+                + "pusherId text, "
                 + "content text);";
         db.execSQL(CREATE_TI_TABLE);
         String CREATE_TASK_TABLE = "create table " + TASK_TABLE_NAME +
