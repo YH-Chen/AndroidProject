@@ -24,6 +24,7 @@ public class TitleBar extends ViewGroup implements View.OnClickListener {
   private static final String STATUS_BAR_HEIGHT_RES_NAME = "status_bar_height";
 
   private TextView mLeftText;
+  private TextView mRightText;
   private LinearLayout mRightLayout;
   private LinearLayout mCenterLayout;
   private TextView mCenterText;
@@ -67,6 +68,7 @@ public class TitleBar extends ViewGroup implements View.OnClickListener {
 
   private void initView(Context context) {
     mLeftText = new TextView(context);
+    mRightText = new TextView(context);
     mCenterLayout = new LinearLayout(context);
     mRightLayout = new LinearLayout(context);
     mDividerView = new View(context);
@@ -77,6 +79,11 @@ public class TitleBar extends ViewGroup implements View.OnClickListener {
     mLeftText.setSingleLine();
     mLeftText.setGravity(Gravity.CENTER_VERTICAL);
     mLeftText.setPadding(mOutPadding + mActionPadding, 0, mOutPadding, 0);
+
+    mRightText.setTextSize(DEFAULT_ACTION_TEXT_SIZE);
+    mRightText.setSingleLine();
+    mRightText.setGravity(Gravity.CENTER_VERTICAL);
+    mRightText.setPadding(mOutPadding + mActionPadding, 0, mOutPadding, 0);
 
     mCenterText = new TextView(context);
     mSubTitleText = new TextView(context);
@@ -95,6 +102,7 @@ public class TitleBar extends ViewGroup implements View.OnClickListener {
     mSubTitleText.setEllipsize(TextUtils.TruncateAt.END);
 
     mRightLayout.setPadding(mOutPadding, 0, mOutPadding, 0);
+    mRightLayout.setGravity(Gravity.CENTER_VERTICAL);
 
     addView(mLeftText, layoutParams);
     addView(mCenterLayout);
@@ -144,6 +152,18 @@ public class TitleBar extends ViewGroup implements View.OnClickListener {
     mLeftText.setVisibility(visible ? View.VISIBLE : View.GONE);
   }
 
+  public void setRightClickListener(OnClickListener l) {
+    mRightLayout.setOnClickListener(l);
+  }
+
+  public void setRightText(CharSequence title) {
+    mRightText.setText(title);
+    mRightLayout.addView(mRightText);
+  }
+
+  public void setRightTextColor(int color){
+    mRightText.setTextColor(color);
+  }
   public void setTitle(CharSequence title) {
     int index = title.toString().indexOf("\n");
     if (index > 0) {

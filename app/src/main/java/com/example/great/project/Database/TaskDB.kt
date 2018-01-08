@@ -67,8 +67,8 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
         return newId
     }
 
-    //根据名字更新一个任务，返回是否成功
-    fun updateByTaskName(data: Task, userName: String): Boolean
+    //根据ID更新一个任务，返回是否成功(只有创建者可以更改)
+    fun updateByTaskId(data: Task, userName: String): Boolean
     {
         var success = false
 
@@ -79,7 +79,7 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
         val c = db.query(TASK_TABLE_NAME, null, selection, selectionArgs, null, null, null)
         if (c.moveToNext())
         {
-            if (c.getString(4) == userName)
+            if (c.getString(c.getColumnIndex("creatorName")) == userName)
             {
                 val values = ContentValues()
                 values.put("courseId", data.courseId)
@@ -110,7 +110,7 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
         val c = db.query(TASK_TABLE_NAME, null, selection, selectionArgs, null, null, null)
         if (c.moveToNext())
         {
-            val c1 = db.query(REL_TABLE_NAME, null, "taskId = ? and sName = ?", arrayOf(taskID.toString(), studentName), null, null, null)
+            val c1 = db.query(REL_TABLE_NAME, null, "tid = ? and sName = ?", arrayOf(taskID.toString(), studentName), null, null, null)
             if(c1.moveToNext()){
                 c1.close()
                 c.close()
@@ -176,7 +176,7 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
 
         if (!c.moveToNext())//所有参与者被删除
         {
-            val deleteClause = "_id"
+            val deleteClause = "_id = ?"
             val deleteArgs = arrayOf(taskID.toString())
             db.delete(TASK_TABLE_NAME, deleteClause, deleteArgs)
         }
@@ -268,6 +268,27 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
         db.close()
         return res
     }
+
+    //学生是否参加了任务: 0 没参加，1 被邀请，2 已参加
+    fun getJoinType(sname:String, taskId:Int):Int{
+        val db = readableDatabase
+        var res = 0
+        val c1 = db.query(REL_TABLE_NAME, null, "sName = ? and tid = ?",
+                arrayOf(sname, taskId.toString()), null, null, null)
+        if(c1.moveToNext()){
+            res = 1
+            val c2 = db.query(REL_TABLE_NAME, null, "acceptInvitation = 1 and sName = ? and tid = ?",
+                    arrayOf(sname, taskId.toString()), null, null, null)
+            if(c2.moveToNext()){
+                res = 2
+            }
+            c2.close()
+        }
+        c1.close()
+        db.close()
+        return res
+    }
+
     //根据任务名字查询任务
     fun searchByTaskName(taskName: String): List<Task>
     {

@@ -1,28 +1,44 @@
 package com.example.great.project.Activities;
 
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.great.project.Adapter.HorizontalListView;
+import com.example.great.project.Database.StudentDB;
 import com.example.great.project.Database.TaskDB;
 import com.example.great.project.Database.TaskInfoDB;
+import com.example.great.project.Model.Student;
 import com.example.great.project.Model.Task;
 import com.example.great.project.Model.TaskInfo;
 import com.example.great.project.R;
+import com.example.great.project.View.TitleBar;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class TaskDetail extends AppCompatActivity {
@@ -37,10 +53,14 @@ public class TaskDetail extends AppCompatActivity {
 
     TaskDB myTaskDB = new TaskDB(TaskDetail.this);
     TaskInfoDB myTaskInfoDB = new TaskInfoDB(TaskDetail.this);
+    StudentDB myStudentDB = new StudentDB(TaskDetail.this);
 
+    private SimpleDateFormat DTF = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+
+    TitleBar taskDetailTitleBar;
     RelativeLayout headerLayout;
-    TextView taskNameTextView;
     TextView briefTextView;
+    TextView DDLTextView;
     TextView creatorTextView;
     HorizontalListView participantListView;
     RecyclerView taskInfoListView;
@@ -54,19 +74,19 @@ public class TaskDetail extends AppCompatActivity {
     String sName = "";
 
     void initial(){
+        taskDetailTitleBar = findViewById(R.id.taskDetail_titlebar);
         headerLayout = findViewById(R.id.taskDetail_header);
-        taskNameTextView = findViewById(R.id.taskDetail_taskName);
         briefTextView = findViewById(R.id.taskDetail_brief);
         creatorTextView = findViewById(R.id.taskDetail_creator);
+        DDLTextView = findViewById(R.id.taskDetail_DDL);
         participantListView = findViewById(R.id.taskDetail_participants);
         taskInfoListView = findViewById(R.id.taskDetail_taskInfoList);
         pusherEditor = findViewById(R.id.taskDetail_editor);
         sendBtn = findViewById(R.id.taskDetail_sendBtn);
 
-        taskNameTextView.setText(curr_task.getTaskName());
         briefTextView.setText(curr_task.getTaskBrief());
         creatorTextView.setText(curr_task.getCreatorName());
-
+        DDLTextView.setText(DTF.format(curr_task.getTaskDDL()));
         //参与者列表
         List<String> participantNameList = myTaskDB.searchParticipantsByTaskID(taskId);
         SimpleAdapter participantSimpleAdaptor = new SimpleAdapter(this, turnStringsIntoList(participantNameList),
@@ -77,10 +97,35 @@ public class TaskDetail extends AppCompatActivity {
         taskInfoAdapter = new CommonAdapter<TaskInfo>(this, R.layout.task_info_item_layout, myTaskInfoDB.queryByTask(taskId)){
             @Override
             public void convert(ViewHolder viewHolder, TaskInfo taskInfo) {
-                TextView content = viewHolder.getView(R.id.taskDetail_taskInfo_content);
-                content.setText(taskInfo.getContent());
-                TextView pusher = viewHolder.getView(R.id.taskDetail_taskInfo_pusher);
-                pusher.setText(taskInfo.getPusherId());
+                RelativeLayout thisOuterLayout = viewHolder.getView(R.id.taskDetail_this_outer);
+                RelativeLayout thatOuterLayout = viewHolder.getView(R.id.taskDetail_that_outer);
+                Student stuInTaskInfoList = myStudentDB.queryStu(sName).get(0);
+                String HeadPath = stuInTaskInfoList.getHeadImage();
+                Bitmap bm;
+                if(HeadPath != null){
+                    bm = BitmapFactory.decodeFile(stuInTaskInfoList.getHeadImage());
+                }else{
+                    bm = BitmapFactory.decodeResource(getResources(), R.mipmap.xiaokeai);
+                }
+                if(taskInfo.getPusherId().equals(sName)){
+                    thisOuterLayout.setVisibility(View.VISIBLE);
+                    thatOuterLayout.setVisibility(View.GONE);
+                    TextView content = viewHolder.getView(R.id.taskDetail_taskInfo_content2);
+                    content.setText(taskInfo.getContent());
+                    TextView pusher = viewHolder.getView(R.id.taskDetail_taskInfo_pusher2);
+                    pusher.setText(taskInfo.getPusherId());
+                    ImageView image = viewHolder.getView(R.id.taskDetail_avatar2);
+                    image.setImageBitmap(bm);
+                }else{
+                    thisOuterLayout.setVisibility(View.GONE);
+                    thatOuterLayout.setVisibility(View.VISIBLE);
+                    TextView content = viewHolder.getView(R.id.taskDetail_taskInfo_content1);
+                    content.setText(taskInfo.getContent());
+                    TextView pusher = viewHolder.getView(R.id.taskDetail_taskInfo_pusher1);
+                    pusher.setText(taskInfo.getPusherId());
+                    ImageView image = viewHolder.getView(R.id.taskDetail_avatar1);
+                    image.setImageBitmap(bm);
+                }
             }
         };
         taskInfoListView.setAdapter(taskInfoAdapter);
@@ -88,6 +133,47 @@ public class TaskDetail extends AppCompatActivity {
         if(taskInfoAdapter.getItemCount() > 0){
             taskInfoListView.smoothScrollToPosition(taskInfoAdapter.getItemCount()-1);
         }
+
+        //titleBar
+        taskDetailTitleBar.setLeftText("返回");
+        taskDetailTitleBar.setLeftClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_OK);
+                TaskDetail.this.finish();
+            }
+        });
+        taskDetailTitleBar.setLeftTextColor(Color.parseColor("#FFFFFF"));
+        taskDetailTitleBar.setTitle(curr_task.getTaskName());
+        taskDetailTitleBar.setTitleColor(Color.parseColor("#FFFFFF"));
+        taskDetailTitleBar.setRightText("邀请好友");
+        taskDetailTitleBar.setRightTextColor(Color.parseColor("#FFFFFF"));
+        taskDetailTitleBar.setRightClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final List<Student> stuListInDialog = myStudentDB.queryStu(null);
+                final String[] stuNameInDialog = new String[stuListInDialog.size()];
+                for(int i = 0; i < stuListInDialog.size(); i++){
+                    stuNameInDialog[i] = stuListInDialog.get(i).getSName();
+                }
+                final AlertDialog.Builder pickInvitation = new AlertDialog.Builder(TaskDetail.this);
+                pickInvitation.setTitle("你要邀请谁呢?")
+                        .setSingleChoiceItems(stuNameInDialog, 0, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                myTaskDB.inviteTask(curr_task.getId(), stuListInDialog.get(which).getSName());
+                                Toast.makeText(TaskDetail.this, "你邀请了"+stuNameInDialog[which], Toast.LENGTH_LONG).show();
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton("不邀请了", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        }).show();
+            }
+        });
     }
 
     void setListeners(){
@@ -104,6 +190,48 @@ public class TaskDetail extends AppCompatActivity {
                 }
             }
         });
+
+        headerLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(sName.equals(curr_task.getCreatorName())){
+                    AlertDialog.Builder addTaskAlertDialog = new AlertDialog.Builder(TaskDetail.this);
+                    addTaskAlertDialog.setTitle("修改任务");
+                    LayoutInflater factor = LayoutInflater.from(TaskDetail.this);
+                    View view_in = factor.inflate(R.layout.course_detail_add_task_dialog_layout, null);
+                    addTaskAlertDialog.setView(view_in);
+                    final EditText editTaskName = view_in.findViewById(R.id.course_detail_add_task_dialog_taskname);
+                    final EditText editTaskBrief = view_in.findViewById(R.id.course_detail_add_task_dialog_taskbrief);
+                    final DatePicker editTaskDDL = view_in.findViewById(R.id.course_detail_add_task_dialog_taskDDL);
+                    editTaskName.setText(curr_task.getTaskName());
+                    editTaskBrief.setText(curr_task.getTaskBrief());
+                    String tempDate = DTF.format(curr_task.getTaskDDL());
+                    String[] tempDateSplit = tempDate.split("-");
+                    editTaskDDL.init(Integer.parseInt(tempDateSplit[0]), Integer.parseInt(tempDateSplit[1])-1, Integer.parseInt(tempDateSplit[2]), null);
+                    addTaskAlertDialog.setPositiveButton("添加任务", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Date d = new Date(editTaskDDL.getYear()-1900, editTaskDDL.getMonth(), editTaskDDL.getDayOfMonth());
+                            String editTaskBriefRes = editTaskBrief.getText().toString();
+                            String editTaskNameRes =  editTaskName.getText().toString();
+                            Boolean success = myTaskDB.updateByTaskId(new Task(curr_task.getId(), courseId, editTaskNameRes,
+                                    editTaskBriefRes, d , sName), sName);
+                            if(success){
+                                curr_task = myTaskDB.searchByTaskID(curr_task.getId());
+                                taskDetailTitleBar.setTitle(editTaskNameRes);
+                                briefTextView.setText(editTaskBriefRes);
+                                DDLTextView.setText(DTF.format(d));
+                            }
+                        }
+                    });
+                    addTaskAlertDialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {}
+                    });
+                    addTaskAlertDialog.show();
+                }
+            }//end onClick
+        });//end Listener
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,5 +258,12 @@ public class TaskDetail extends AppCompatActivity {
             res.add(temp);
         }
         return res;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(RESULT_OK);
+        TaskDetail.this.finish();
     }
 }
