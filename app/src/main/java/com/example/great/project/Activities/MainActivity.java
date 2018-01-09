@@ -157,10 +157,11 @@ public class MainActivity extends BaseActivity {
     ImageView AlbumImage;
     TextView CurrentTime, Status, CompleteTime, RemainTime;
     SeekBar Music;
-    Button Play, Stop, Quit;
+    Button Play;
     SimpleDateFormat time_format = new SimpleDateFormat("mm:ss");
     ObjectAnimator ImageRotation;
     private long timeusedinsec = 1500;
+    private String timeusedinstr = "00:10";
     private Handler mHandler ;
     private boolean isstop = true;
 
@@ -291,8 +292,6 @@ public class MainActivity extends BaseActivity {
         CompleteTime = (TextView)view3.findViewById(R.id.CompleteTimeTextView);
         Music = (SeekBar)view3.findViewById(R.id.MusicSeekBar);
         Play = (Button)view3.findViewById(R.id.PlayButton);
-        Stop = (Button)view3.findViewById(R.id.StopButton);
-        Quit = (Button)view3.findViewById(R.id.QuitButton);
         RemainTime = (TextView)view3.findViewById(R.id.RemainTimeTextView);
         //初始化图片旋转动画，使用ObjectAnimator实现
         ImageRotation = ObjectAnimator.ofFloat(AlbumImage, "rotation", 0.0f,360.0f);
@@ -650,6 +649,8 @@ public class MainActivity extends BaseActivity {
             }
             bindService(intent,sc, Context.BIND_AUTO_CREATE);
         }
+        timeusedinsec = 10;
+        RemainTime.setText(timeusedinstr);
 
 
         mHandler = new Handler(){
@@ -670,7 +671,7 @@ public class MainActivity extends BaseActivity {
                                 Music.setProgress(currenttime);
                                 Music.setMax(completetime);
                                 if(reply.readInt() == 1){//is playing
-                                    ImageRotation.resume();
+                                    //ImageRotation.resume();
                                 }
                             }
                         } catch (RemoteException e) {
@@ -702,6 +703,22 @@ public class MainActivity extends BaseActivity {
                     case 0:
                         break;
 
+                    case 666:
+                        mHandler.removeMessages(1);
+                        mHandler.sendEmptyMessage(0);
+                        Toast.makeText(MainActivity.this, "常规学习已完成", Toast.LENGTH_SHORT ).show();
+                        Status.setText("已完成");
+                        ImageRotation.pause();
+                        Parcel data = Parcel.obtain();
+                        Parcel reply = Parcel.obtain();
+                        try {
+                            mBinder.transact(102 ,data, reply, 0);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                        timeusedinsec = 10;
+                        break;
+
                 }
             }
         };
@@ -710,25 +727,29 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 String aaa = RemainTime.getText().toString();
-                if(aaa.equals("25:00")){
+                if(aaa.equals(timeusedinstr) || aaa.equals("00:00")){
                     mHandler.removeMessages(1);
                     mHandler.sendEmptyMessage(1);
                     isstop = false;
+                    ImageRotation.resume();
+                    Status.setText("进行中");
                     //RemainTime.setText("pause");
                 }else {
                     AlertDialog.Builder checkStop = new AlertDialog.Builder(MainActivity.this);
-                    checkStop.setTitle("确认结束此次学习？")
+                    checkStop.setTitle("确认结束此次任务？")
                             .setPositiveButton("确认", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     mHandler.removeMessages(1);
                                     mHandler.sendEmptyMessage(0);
                                     isstop = true;
-                                    RemainTime.setText("25:00");
-                                    timeusedinsec = 1500;
+                                    RemainTime.setText(timeusedinstr);
+                                    timeusedinsec = 10;
+                                    ImageRotation.pause();
+                                    Status.setText("已结束");
                                 }
                             })
-                            .setNegativeButton("再学习一会", new DialogInterface.OnClickListener() {
+                            .setNegativeButton("再坚持一会", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     isstop = false;
@@ -754,6 +775,10 @@ public class MainActivity extends BaseActivity {
                     }
                     if(sc != null && hasPermission == true){
                         mHandler.obtainMessage(123).sendToTarget();
+                    }
+                    if(timeusedinsec == 0){//完成任务
+                        mHandler.obtainMessage(666).sendToTarget();
+
                     }
                 }
             }
@@ -803,61 +828,20 @@ public class MainActivity extends BaseActivity {
                     e.printStackTrace();
                 }
                 if(v.getTag().toString().equals("1")){
-                    ((Button)v).setText("PAUSE");
+                    ((Button)v).setText("暂停播放");
                     v.setTag(0);
-                    ImageRotation.resume();
-                    Status.setText("Playing");
+                    //ImageRotation.resume();
+                    //Status.setText("Playing");
                 }
                 else{
-                    ((Button)v).setText("PLAY");
+                    ((Button)v).setText("播放音乐");
                     v.setTag(1);
-                    ImageRotation.pause();
-                    Status.setText("Paused");
+                    //ImageRotation.pause();
+                    //Status.setText("Paused");
                 }
-            }
-        });
-        //停止键
-        Stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try{
-                    Parcel data = Parcel.obtain();
-                    Parcel reply = Parcel.obtain();
-                    mBinder.transact(102 ,data, reply, 0);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                Play.setText("PLAY");
-                Play.setTag("1");
-                Status.setText("Stopped");
-                ImageRotation.end();
-                ImageRotation.start();
-                ImageRotation.pause();//重置
             }
         });
 
-        //退出键
-        Quit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try{
-                    Parcel data = Parcel.obtain();
-                    Parcel reply = Parcel.obtain();
-                    mBinder.transact(103 ,data, reply, 0);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                MainActivity.this.getApplication().unbindService(sc);
-                sc = null;
-                try{
-                    MainActivity.this.finish();
-                    System.exit(0);
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
 
