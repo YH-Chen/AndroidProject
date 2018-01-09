@@ -651,7 +651,6 @@ public class MainActivity extends BaseActivity {
             bindService(intent,sc, Context.BIND_AUTO_CREATE);
         }
 
-
         mHandler = new Handler(){
             @Override
             public void handleMessage (Message msg){
