@@ -2,14 +2,18 @@ package com.example.great.project.Activities;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -17,6 +21,7 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
@@ -34,6 +39,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,7 +48,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dsw.calendar.views.GridCalendarView;
 import com.example.great.project.Database.CourseDB;
 import com.example.great.project.Database.StudentDB;
 import com.example.great.project.Database.TaskDB;
@@ -120,7 +125,8 @@ public class MainActivity extends BaseActivity {
     private TaskDB tdb = new TaskDB(this);
     private List<Student> stulist;
 
-
+    private ConstraintLayout mainLayout;
+    private UIReceiver uiReceiver;
     private List<Map<String, Object>> courseItem = new ArrayList<>();
     private RecyclerView courseRecy;
     private FloatingActionButton addButton;
@@ -143,7 +149,18 @@ public class MainActivity extends BaseActivity {
     private BottomNavigationView navigation;
     private List<View> viewList;
 
-    //view3
+
+    // view2
+    private Button arrow;
+    private CalendarView calendar;
+    private LinearLayout.LayoutParams lp;
+    //    private GridCalendarView calendar;
+    private RecyclerView myTaskRec;
+    private List myTaskList = new ArrayList();
+    private List<Map<String, Object>> myTaskItem;
+    private CommonAdapter myTaskAdp;
+
+    // view3
     private static String[] PERMISSIONS_STORAGE = {
             "android.permission.READ_EXTERNAL_STORAGE",
             "android.permission.WRITE_EXTERNAL_STORAGE" };
@@ -153,19 +170,15 @@ public class MainActivity extends BaseActivity {
     static boolean IsBind = false;
 
     private ServiceConnection sc;
-
-    ImageView AlbumImage;
-    TextView CurrentTime, Status, CompleteTime, RemainTime;
-    SeekBar Music;
-    Button Play, Stop, Quit;
-    SimpleDateFormat time_format = new SimpleDateFormat("mm:ss");
-    ObjectAnimator ImageRotation;
+    private ImageView AlbumImage;
+    private TextView CurrentTime, Status, CompleteTime, RemainTime;
+    private SeekBar Music;
+    private Button Play, Stop, Quit;
+    private SimpleDateFormat time_format = new SimpleDateFormat("mm:ss");
+    private ObjectAnimator ImageRotation;
     private long timeusedinsec = 1500;
     private Handler mHandler ;
     private boolean isstop = true;
-
-
-
 
 
     // view4
@@ -175,14 +188,9 @@ public class MainActivity extends BaseActivity {
     private TextView sName;
     private TextView nickName;
 
-    //日历
-    private GridCalendarView calendar;
-    private RecyclerView myTaskRec;
-    private List myTaskList = new ArrayList();
-    private List<Map<String, Object>> myTaskItem;
-    private CommonAdapter myTaskAdp;
 
-    int whichPage;
+
+    private int whichPage;
 
 
     /*
@@ -200,8 +208,13 @@ public class MainActivity extends BaseActivity {
         disableShiftMode(navigation);           // 去除原动画
         vpager = (ViewPager) findViewById(R.id.viewpager);
         titleBar = (TitleBar)findViewById(R.id.titlebar);
-        //titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        titleBar.setDividerColor(getResources().getColor(R.color.grey));
+        titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
+        uiReceiver = new UIReceiver();
+        mainLayout = findViewById(R.id.container);
+        IntentFilter filter = new IntentFilter("UpdateUI");
+        registerReceiver(uiReceiver, filter);
 
         LayoutInflater inflater = getLayoutInflater();
         View view1 = inflater.inflate(R.layout.layout_course, null);
@@ -216,7 +229,6 @@ public class MainActivity extends BaseActivity {
         viewList.add(view4);
 
 
-
         // view1 课程信息
         addBtnFlag = 0;
         addCourse = new AlertDialog.Builder(MainActivity.this);
@@ -229,9 +241,6 @@ public class MainActivity extends BaseActivity {
         courseHint = view1.findViewById(R.id.course_hint);
         courseExisted = view1.findViewById(R.id.course_existed);
         courseExisted.setVisibility(View.INVISIBLE);
-//        backCourse = view1.findViewById(R.id.course_back);
-//        backCourse.setVisibility(View.INVISIBLE);
-//        courseTopHint = view1.findViewById(R.id.course_title);
         titleBar.setTitle("我的课程");
         titleBar.setLeftImageResource(0);
         titleBar.setLeftText("");
@@ -274,9 +283,10 @@ public class MainActivity extends BaseActivity {
         courseExisted.setItemAnimator(new OvershootInLeftAnimator());
 
         // view2 taskDLL
-
-        calendar = findViewById(R.id.calendar);
-        myTaskRec = findViewById(R.id.main_task_rec);
+        calendar = (CalendarView) view2.findViewById(R.id.calendar);
+        arrow = (Button) view2.findViewById(R.id.arrow);
+//        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+//        myTaskRec = findViewById(R.id.main_task_rec);
         //myTaskList = tdb.searchByParticipantName(sNameStr);
         /*for(int i = 0; i < myTaskList.size(); i++){
             Task tmp = (Task) myTaskList.get(i);
@@ -378,12 +388,7 @@ public class MainActivity extends BaseActivity {
                 container.removeView(viewList.get(position));
             }
         };
-
         vpager.setAdapter(pagerAdapter);
-    }
-
-
-    private void setListener(){
         vpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -408,6 +413,10 @@ public class MainActivity extends BaseActivity {
                         break;
                     case 1:
                         whichPage = 1;
+                        addBtnFlag = 0;
+                        titleBar.setTitle("任务日历");
+                        titleBar.setLeftText("");
+                        titleBar.setLeftImageResource(0);
                         navigation.setSelectedItemId(R.id.navigation_ddl);
                         break;
                     case 2:
@@ -416,10 +425,9 @@ public class MainActivity extends BaseActivity {
                         break;
                     case 3:
                         whichPage = 3;
-                        titleBar.setTitle("设置");
-                        titleBar.setLeftImageResource(R.drawable.ic_left_black);
-                        titleBar.setLeftText("返回");
-                        titleBar.setLeftTextColor(getResources().getColor(R.color.black));
+                        titleBar.setTitle("我的主页");
+                        titleBar.setLeftImageResource(0);
+                        titleBar.setLeftText("");
                         navigation.setSelectedItemId(R.id.navigation_settings);
                         break;
                 }
@@ -450,6 +458,10 @@ public class MainActivity extends BaseActivity {
                 return true;
             }
         });
+    }
+
+
+    private void setListener(){
         courseListAdp.setOnItemClickListener(new CommonAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
@@ -530,7 +542,7 @@ public class MainActivity extends BaseActivity {
                     addBtnFlag = 1;
                 }
                 else{
-                    addCourse.setTitle("添加自定义课程");
+                    addCourse.setTitle("自定义课程");
                     LayoutInflater factor = LayoutInflater.from(MainActivity.this);
                     View view_in = factor.inflate(R.layout.course_edit_dialog_layout, null);
                     addCourse.setView(view_in);
@@ -542,7 +554,7 @@ public class MainActivity extends BaseActivity {
                     final EditText editCourseEndMinute = view_in.findViewById(R.id.course_edit_end_minute);
                     final EditText editCourseTeacher = view_in.findViewById(R.id.course_edit_teacher);
                     final Spinner editCourseweekday = view_in.findViewById(R.id.course_edit_weekday);
-                    addCourse.setPositiveButton("添加课程", new DialogInterface.OnClickListener() {
+                    addCourse.setPositiveButton("添加", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             CourseModel course = new CourseModel();
@@ -620,8 +632,36 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+
     /*
-     *番茄学习
+     * DLL日历
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void taskPage() {
+        arrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (calendar.getVisibility() == View.VISIBLE) {
+                    calendar.setVisibility(View.GONE);
+//                    lp.setMargins(0, 50, 0, 0);
+//                    arrow.setLayoutParams(lp);
+                    arrow.setBackgroundResource(R.drawable.ic_keyboard_up);
+                } else {
+                    calendar.setVisibility(View.VISIBLE);
+                    arrow.setBackgroundResource(R.drawable.ic_keyboard_down);
+                }
+            }
+        });
+        calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                Log.d("TAG", String.valueOf(dayOfMonth));
+            }
+        });
+    }
+
+    /*
+     * 番茄学习界面
      */
     @SuppressLint("HandlerLeak")
     private void StudyPage(){
@@ -747,7 +787,7 @@ public class MainActivity extends BaseActivity {
             public void run(){
                 while(true){
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                     }catch (InterruptedException e){
                         e.printStackTrace();
                     }
@@ -861,7 +901,7 @@ public class MainActivity extends BaseActivity {
 
 
     /*
-     导航栏设置界面
+     * 导航栏设置界面
      */
     private void settingPage() {
         /*
@@ -908,6 +948,7 @@ public class MainActivity extends BaseActivity {
         switchPage();
         StudyPage();
         settingPage();
+        taskPage();
     }
 
 
@@ -996,6 +1037,22 @@ public class MainActivity extends BaseActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    /*
+     *广播更新UI
+     */
+    class UIReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String path = intent.getStringExtra("bgImage");
+            Log.d("TAG", path);
+            Bitmap bm = BitmapFactory.decodeFile(path);
+//            Bitmap bm = intent.getParcelableExtra("bgImage");
+            BitmapDrawable bd = new BitmapDrawable(Resources.getSystem(), bm);
+            mainLayout.setBackground(bd);
+            Log.d("TAG", "Upadate OK!");
+        }
     }
 
 }
