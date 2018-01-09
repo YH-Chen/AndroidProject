@@ -7,12 +7,15 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
+import android.widget.Toast;
 
 import com.example.great.project.Model.Task;
 import com.example.great.project.R;
 import com.example.great.project.Widget.DDLListAppWidget;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class UpdateService extends RemoteViewsService {
     public UpdateService() {
@@ -37,6 +40,7 @@ public class UpdateService extends RemoteViewsService {
 
         private final Context mContext;
         private final List<Task> mList;
+        private SimpleDateFormat DTF = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
 
         public ListRemoteViewsFactory(Context context, Intent intent){
             mContext = context;
@@ -62,6 +66,9 @@ public class UpdateService extends RemoteViewsService {
 
         @Override
         public int getCount() {
+            if(mList == null){
+                return 0;
+            }
             return mList.size();
         }
 
@@ -70,12 +77,13 @@ public class UpdateService extends RemoteViewsService {
             if(position<0 || position>=mList.size())
                 return null;
             String content = mList.get(position).getTaskName();
+            String deadlineStr = DTF.format(mList.get(position).getTaskDDL());
             final RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.widget_list_item_layout);
 
             Intent intent = new Intent();
             rv.setOnClickFillInIntent(R.id.widget_list_item, intent);
             rv.setTextViewText(R.id.widget_list_item_tv, content);
-
+            rv.setTextViewText(R.id.widget_list_item_ddl_tv, deadlineStr);
             return rv;
         }
 

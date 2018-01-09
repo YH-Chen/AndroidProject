@@ -83,9 +83,8 @@ public class DDLListAppWidget extends AppWidgetProvider {
             //更新RemoteViews
             appWidgetManager.updateAppWidget(thisWidget, remoteViews);
 
-            AppWidgetManager manager = AppWidgetManager.getInstance(context);
             for (int appWidgetId : appWidgetIds) {
-                manager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_ddl_list);
+                appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_ddl_list);
             }
         }
     }
