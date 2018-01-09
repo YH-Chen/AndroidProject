@@ -416,6 +416,9 @@ public class MainActivity extends BaseActivity {
                         break;
                     case 1:
                         whichPage = 1;
+                        titleBar.setTitle("任务日历");
+                        titleBar.setLeftText("");
+                        titleBar.setLeftImageResource(0);
                         navigation.setSelectedItemId(R.id.navigation_ddl);
                         break;
                     case 2:
@@ -424,10 +427,9 @@ public class MainActivity extends BaseActivity {
                         break;
                     case 3:
                         whichPage = 3;
-                        titleBar.setTitle("设置");
-                        titleBar.setLeftImageResource(R.drawable.ic_left_black);
-                        titleBar.setLeftText("返回");
-                        titleBar.setLeftTextColor(getResources().getColor(R.color.black));
+                        titleBar.setTitle("我的主页");
+                        titleBar.setLeftImageResource(0);
+                        titleBar.setLeftText("");
                         navigation.setSelectedItemId(R.id.navigation_settings);
                         break;
                 }
@@ -636,6 +638,7 @@ public class MainActivity extends BaseActivity {
     /*
      * DLL日历
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void taskPage() {
         arrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -649,6 +652,12 @@ public class MainActivity extends BaseActivity {
                     calendar.setVisibility(View.VISIBLE);
                     arrow.setBackgroundResource(R.drawable.ic_keyboard_down);
                 }
+            }
+        });
+        calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                Log.d("TAG", String.valueOf(dayOfMonth));
             }
         });
     }

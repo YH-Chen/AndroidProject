@@ -33,6 +33,7 @@ import android.widget.TextView;
 import com.example.great.project.Database.StudentDB;
 import com.example.great.project.Model.Student;
 import com.example.great.project.R;
+import com.example.great.project.View.TitleBar;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,6 +52,7 @@ public class Settings extends BaseActivity {
     private Bitmap bitmap;
     private ImageView setHeadImage;
 
+    private TitleBar titleBar;
     private AlertDialog.Builder builder;
     private AlertDialog.Builder simple;
     private String sName;
@@ -92,6 +94,16 @@ public class Settings extends BaseActivity {
         BroadcastIntent = new Intent("UpdateUI");
         currentLayout.setBackgroundResource(R.mipmap.course_detail_bg);
 
+
+        titleBar = findViewById(R.id.settings_titlebar);
+        titleBar.setLeftText("返回");
+        titleBar.setLeftImageResource(R.drawable.ic_left_black);
+        titleBar.setLeftClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         sdb = new StudentDB(this);
         Log.d("TAG", String.valueOf(Environment.getExternalStorageDirectory()));
@@ -158,7 +170,7 @@ public class Settings extends BaseActivity {
                                     int permission = ActivityCompat.checkSelfPermission(Settings.this, Manifest.permission.READ_EXTERNAL_STORAGE);
                                     if (permission != PackageManager.PERMISSION_GRANTED) {
                                         // 没有读取权限，申请权限弹出对话框
-                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, CHOOSE_PHOTO);
                                     } else {
                                         choose_photo(CHOOSE_PHOTO);
                                         Log.d("TAG", "CHOOSE_PHOTO");
@@ -177,7 +189,7 @@ public class Settings extends BaseActivity {
                                     int permission = ActivityCompat.checkSelfPermission(Settings.this, Manifest.permission.CAMERA);
                                     if (permission != PackageManager.PERMISSION_GRANTED) {
                                         // 没有读取权限，申请权限弹出对话框
-                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.CAMERA}, 1);
+                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.CAMERA}, TAKE_PHOTO);
                                     } else {
                                         take_photo(TAKE_PHOTO);
                                         Log.d("TAG", "TAKE_PHOTO");
@@ -316,7 +328,7 @@ public class Settings extends BaseActivity {
                                     int permission = ActivityCompat.checkSelfPermission(Settings.this, Manifest.permission.READ_EXTERNAL_STORAGE);
                                     if (permission != PackageManager.PERMISSION_GRANTED) {
                                         // 没有读取权限，申请权限弹出对话框
-                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, CHOOSE_PHOTO_BG);
                                     } else {
                                         choose_photo(CHOOSE_PHOTO_BG);
                                         Log.d("TAG", "CHOOSE_PHOTO_BG");
@@ -331,7 +343,7 @@ public class Settings extends BaseActivity {
                                     int permission = ActivityCompat.checkSelfPermission(Settings.this, Manifest.permission.CAMERA);
                                     if (permission != PackageManager.PERMISSION_GRANTED) {
                                         // 没有读取权限，申请权限弹出对话框
-                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.CAMERA}, 1);
+                                        ActivityCompat.requestPermissions(Settings.this, new String[]{Manifest.permission.CAMERA}, TAKE_PHOTO_BG);
                                     } else {
                                         take_photo(TAKE_PHOTO_BG);
                                         Log.d("TAG", "TAKE_PHOTO_BG");
@@ -506,6 +518,20 @@ public class Settings extends BaseActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            switch (requestCode) {
+                case CHOOSE_PHOTO:
+                    choose_photo(CHOOSE_PHOTO);
+                    break;
+                case TAKE_PHOTO:
+                    take_photo(TAKE_PHOTO);
+                    break;
+                case CHOOSE_PHOTO_BG:
+                    choose_photo(CHOOSE_PHOTO_BG);
+                    break;
+                case TAKE_PHOTO_BG:
+                    take_photo(TAKE_PHOTO_BG);
+                    break;
+            }
             Log.d("TAG", "onRequestPermissionsResult");
         } else {
             // 拒绝权限

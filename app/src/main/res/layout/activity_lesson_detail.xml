@@ -10,7 +10,8 @@
     <com.example.great.project.View.TitleBar
         android:id="@id/course_detail_titlebar"
         android:layout_width="wrap_content"
-        android:layout_height="50dp">
+        android:layout_height="50dp"
+        android:background="@color/colorPrimary">
 
     </com.example.great.project.View.TitleBar>
 

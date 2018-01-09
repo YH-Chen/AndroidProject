@@ -7,17 +7,25 @@
     tools:context="com.example.great.project.Activities.Settings"
     android:id="@+id/activity_settings">
 
+    <com.example.great.project.View.TitleBar
+        android:id="@+id/settings_titlebar"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimary">
+
+    </com.example.great.project.View.TitleBar>
+
     <LinearLayout
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
         android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/Line1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             app:layout_constraintTop_toTopOf="parent"
@@ -122,7 +130,6 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:paddingStart="16dp"
-            android:layout_marginTop="30dp"
             android:gravity="center_vertical"
             app:layout_constraintTop_toBottomOf="@id/Line3"
             app:layout_constraintLeft_toLeftOf="parent"
