@@ -1,13 +1,12 @@
 package com.example.great.project.Activities;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,8 +14,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -36,7 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -58,7 +56,7 @@ public class TaskDetail extends AppCompatActivity {
     private SimpleDateFormat DTF = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
 
     TitleBar taskDetailTitleBar;
-    RelativeLayout headerLayout;
+    LinearLayout headerLayout;
     TextView briefTextView;
     TextView DDLTextView;
     TextView creatorTextView;
@@ -85,11 +83,11 @@ public class TaskDetail extends AppCompatActivity {
         sendBtn = findViewById(R.id.taskDetail_sendBtn);
 
         briefTextView.setText(curr_task.getTaskBrief());
-        creatorTextView.setText(curr_task.getCreatorName());
+        creatorTextView.setText(myStudentDB.queryStu(curr_task.getCreatorName()).get(0).getNickName());
         DDLTextView.setText(DTF.format(curr_task.getTaskDDL()));
         //参与者列表
         List<String> participantNameList = myTaskDB.searchParticipantsByTaskID(taskId);
-        SimpleAdapter participantSimpleAdaptor = new SimpleAdapter(this, turnStringsIntoList(participantNameList),
+        SimpleAdapter participantSimpleAdaptor = new SimpleAdapter(this, turnStringsIntoNameList(participantNameList),
                 R.layout.task_detail_participants_listitem,new String[]{"name"}, new int[]{R.id.taskDetail_participants_name});
         participantListView.setAdapter(participantSimpleAdaptor);
 
@@ -113,7 +111,7 @@ public class TaskDetail extends AppCompatActivity {
                     TextView content = viewHolder.getView(R.id.taskDetail_taskInfo_content2);
                     content.setText(taskInfo.getContent());
                     TextView pusher = viewHolder.getView(R.id.taskDetail_taskInfo_pusher2);
-                    pusher.setText(taskInfo.getPusherId());
+                    pusher.setText(stuInTaskInfoList.getNickName());
                     ImageView image = viewHolder.getView(R.id.taskDetail_avatar2);
                     image.setImageBitmap(bm);
                 }else{
@@ -122,7 +120,7 @@ public class TaskDetail extends AppCompatActivity {
                     TextView content = viewHolder.getView(R.id.taskDetail_taskInfo_content1);
                     content.setText(taskInfo.getContent());
                     TextView pusher = viewHolder.getView(R.id.taskDetail_taskInfo_pusher1);
-                    pusher.setText(taskInfo.getPusherId());
+                    pusher.setText(stuInTaskInfoList.getNickName());
                     ImageView image = viewHolder.getView(R.id.taskDetail_avatar1);
                     image.setImageBitmap(bm);
                 }
@@ -136,6 +134,7 @@ public class TaskDetail extends AppCompatActivity {
 
         //titleBar
         taskDetailTitleBar.setLeftText("返回");
+        taskDetailTitleBar.setLeftImageResource(R.drawable.ic_left_black);
         taskDetailTitleBar.setLeftClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -250,7 +249,7 @@ public class TaskDetail extends AppCompatActivity {
         setListeners();
     }
 
-    ArrayList<Map<String, Object>> turnStringsIntoList(List<String> raw_list){
+    ArrayList<Map<String, Object>> turnStringsIntoNameList(List<String> raw_list){
         ArrayList<Map<String, Object>> res = new ArrayList<>();
         for(int i  = 0; i < raw_list.size(); i++){
             HashMap<String, Object> temp = new HashMap<>();

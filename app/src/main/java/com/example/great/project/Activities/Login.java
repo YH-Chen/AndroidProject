@@ -138,8 +138,7 @@ public class Login extends BaseActivity {
                 Toast.makeText(Login.this,"再按一次退出程序", Toast.LENGTH_SHORT).show();
                 firstTime=System.currentTimeMillis();
             }else{
-                String EXIT_ACTION = "action.exit";
-                Intent intent = new Intent(EXIT_ACTION);
+                Intent intent = new Intent("action.exit");
                 sendBroadcast(intent);
             }
             return true;
