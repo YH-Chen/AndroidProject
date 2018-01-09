@@ -28,14 +28,19 @@
             android:layout_toEndOf="@id/taskDetail_avatar1" />
         <TextView
             android:id="@+id/taskDetail_taskInfo_content1"
-            android:layout_width="wrap_content"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:text="内容"
+            android:lineSpacingMultiplier="1.2"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:maxWidth="260dp"
             android:textSize="18sp"
             android:background="@drawable/task_detail_that_info"
             android:layout_below="@id/taskDetail_taskInfo_pusher1"
-            android:layout_toEndOf="@id/taskDetail_avatar1"
-            android:padding="8dp"/>
+            android:layout_toEndOf="@id/taskDetail_avatar1"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -61,7 +66,12 @@
             android:layout_below="@id/taskDetail_taskInfo_pusher2"
             android:layout_toStartOf="@id/taskDetail_avatar2"
             android:background="@drawable/task_detail_this_info"
-            android:padding="8dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:maxWidth="260dp"
+            android:lineSpacingMultiplier="1.2"
             android:text="内容 "
             android:textSize="18sp" />
 

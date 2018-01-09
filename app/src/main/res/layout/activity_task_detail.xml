@@ -95,6 +95,13 @@
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginTop="8dp"/>
+        <Button
+            android:id="@+id/task_arrow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-8dp"
+            android:background="@drawable/ic_keyboard_down"/>
     </LinearLayout>
 
 

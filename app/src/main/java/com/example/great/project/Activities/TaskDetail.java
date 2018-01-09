@@ -63,7 +63,7 @@ public class TaskDetail extends AppCompatActivity {
     HorizontalListView participantListView;
     RecyclerView taskInfoListView;
     EditText pusherEditor;
-    Button sendBtn;
+    Button sendBtn, showBtn;
     CommonAdapter<TaskInfo> taskInfoAdapter;
 
     Task curr_task;
@@ -81,6 +81,7 @@ public class TaskDetail extends AppCompatActivity {
         taskInfoListView = findViewById(R.id.taskDetail_taskInfoList);
         pusherEditor = findViewById(R.id.taskDetail_editor);
         sendBtn = findViewById(R.id.taskDetail_sendBtn);
+        showBtn = findViewById(R.id.task_arrow);
 
         briefTextView.setText(curr_task.getTaskBrief());
         creatorTextView.setText(curr_task.getCreatorName());
@@ -189,7 +190,18 @@ public class TaskDetail extends AppCompatActivity {
                 }
             }
         });
-
+        showBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (headerLayout.getVisibility() == View.VISIBLE) {
+                    headerLayout.setVisibility(View.GONE);
+                    showBtn.setBackgroundResource(R.drawable.ic_keyboard_up);
+                } else {
+                    headerLayout.setVisibility(View.VISIBLE);
+                    showBtn.setBackgroundResource(R.drawable.ic_keyboard_down);
+                }
+            }
+        });
         headerLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
