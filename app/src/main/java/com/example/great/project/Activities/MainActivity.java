@@ -241,9 +241,6 @@ public class MainActivity extends BaseActivity {
         courseHint = view1.findViewById(R.id.course_hint);
         courseExisted = view1.findViewById(R.id.course_existed);
         courseExisted.setVisibility(View.INVISIBLE);
-//        backCourse = view1.findViewById(R.id.course_back);
-//        backCourse.setVisibility(View.INVISIBLE);
-//        courseTopHint = view1.findViewById(R.id.course_title);
         titleBar.setTitle("我的课程");
         titleBar.setLeftImageResource(0);
         titleBar.setLeftText("");
@@ -416,6 +413,7 @@ public class MainActivity extends BaseActivity {
                         break;
                     case 1:
                         whichPage = 1;
+                        addBtnFlag = 0;
                         titleBar.setTitle("任务日历");
                         titleBar.setLeftText("");
                         titleBar.setLeftImageResource(0);

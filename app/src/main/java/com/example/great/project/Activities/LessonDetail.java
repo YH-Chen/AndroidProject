@@ -47,7 +47,6 @@ public class LessonDetail extends AppCompatActivity {
     private CourseDB cdb = new CourseDB(this);
     private TaskDB tdb = new TaskDB(this);
 
-    private TextView courseName;
     private TextView courseRoom;
     private TextView courseStratTime;
     private TextView courseEndTime;
@@ -65,7 +64,6 @@ public class LessonDetail extends AppCompatActivity {
     private CourseModel course;
 
     private void initial(){
-        courseName = findViewById(R.id.course_detail_name);
         courseRoom = findViewById(R.id.course_detail_room);
         courseStratTime = findViewById(R.id.course_detail_start_time);
         courseEndTime = findViewById(R.id.course_detail_end_time);
@@ -81,7 +79,6 @@ public class LessonDetail extends AppCompatActivity {
         sname = intent.getExtras().getString("sname");
         course = (CourseModel) intent.getSerializableExtra("course");
 
-        courseName.setText(course.getCourseName());
         courseRoom.setText(course.getRoom());
         courseStratTime.setText(course.getStartTime());
         courseEndTime.setText(course.getEndTime());
@@ -160,7 +157,6 @@ public class LessonDetail extends AppCompatActivity {
                         course.setWeekDay(editCourseweekday.getSelectedItem().toString());
                         course.setTeacherName(editCourseTeacher.getText().toString());
                         if (!editCourseName.getText().toString().isEmpty()) cdb.updateCourse(sname, course);
-                        courseName.setText(course.getCourseName());
                         courseRoom.setText(course.getRoom());
                         courseStratTime.setText(course.getStartTime());
                         courseEndTime.setText(course.getEndTime());
