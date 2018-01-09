@@ -691,7 +691,6 @@ public class MainActivity extends BaseActivity {
             bindService(intent,sc, Context.BIND_AUTO_CREATE);
         }
 
-
         mHandler = new Handler(){
             @Override
             public void handleMessage (Message msg){
@@ -950,6 +949,7 @@ public class MainActivity extends BaseActivity {
         StudyPage();
         settingPage();
         taskPage();
+        sendToWidget(username);
     }
 
 
@@ -983,6 +983,7 @@ public class MainActivity extends BaseActivity {
             courseItem.add(tmp);
         }
         courseListAdp.notifyDataSetChanged();
+        sendToWidget(username);
     }
 
     @Override
@@ -1054,6 +1055,14 @@ public class MainActivity extends BaseActivity {
             mainLayout.setBackground(bd);
             Log.d("TAG", "Upadate OK!");
         }
+    }
+
+    public void sendToWidget(String sName){
+        Bundle bundle = new Bundle();
+        bundle.putString("sName", sName);
+        Intent intent = new Intent("static_action");
+        intent.putExtras(bundle);
+        sendBroadcast(intent);
     }
 
 }
