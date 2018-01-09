@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.widget.RemoteViews;
 import com.example.great.project.Database.StudentDB;
 import com.example.great.project.Database.TaskDB;
@@ -60,18 +61,22 @@ public class DDLListAppWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        if(intent.getAction().equals("static_action")){
+        if(intent.getAction() != null && intent.getAction().equals("static_action")){
             String sName = "";
-            if(intent.getExtras().getString("sName") != null){
-                sName = intent.getExtras().getString("sName");
+            Bundle bundle = intent.getExtras();
+            if(bundle != null && bundle.getString("sName") != null){
+                sName = bundle.getString("sName");
             }
             sList = getSortedDDLList(context, sName);
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             thisWidget = new ComponentName(context, DDLListAppWidget.class);
             remoteViews = new RemoteViews(context.getPackageName(), R.layout.ddllist_app_widget);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+
             Intent intentToService = new Intent(context, UpdateService.class);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[0]);
+            for (int appWidgetId : appWidgetIds) {
+                intentToService.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            }
             //设置适配器
             remoteViews.setRemoteAdapter(R.id.widget_ddl_list, intentToService);
 
@@ -79,7 +84,9 @@ public class DDLListAppWidget extends AppWidgetProvider {
             appWidgetManager.updateAppWidget(thisWidget, remoteViews);
 
             AppWidgetManager manager = AppWidgetManager.getInstance(context);
-            manager.notifyAppWidgetViewDataChanged(appWidgetIds[0], R.id.widget_ddl_list);
+            for (int appWidgetId : appWidgetIds) {
+                manager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_ddl_list);
+            }
         }
     }
 
@@ -108,8 +115,9 @@ public class DDLListAppWidget extends AppWidgetProvider {
         });
         int maxTask = myStudentDB.QuerySetting(sName).getMaxTask();
         List<Task> res = new ArrayList<>();
-        for(int i = 0; i < maxTask; i++){
-            res.add(myTaskDB.searchByTaskID((Integer) taskTimeList.get(i).get("taskId")));
+        int taskAmount = maxTask > taskTimeList.size() ? taskTimeList.size() : maxTask;
+        for(int i = 0; i < taskAmount; i++){
+            res.add(myTaskDB.searchByTaskID((Integer)taskTimeList.get(i).get("taskId")));
         }
         return res;
     }
