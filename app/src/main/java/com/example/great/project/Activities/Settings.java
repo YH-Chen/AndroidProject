@@ -16,7 +16,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -26,6 +25,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -39,7 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class Settings extends AppCompatActivity {
+public class Settings extends BaseActivity {
 
     private static final int CHOOSE_PHOTO = 0;
     private static final int TAKE_PHOTO = 1;
@@ -50,8 +50,6 @@ public class Settings extends AppCompatActivity {
     private Uri imageUri;
     private Bitmap bitmap;
     private ImageView setHeadImage;
-    private String imagePath;
-    private String filePath = "/storage/emulated/0/students/";
 
     private AlertDialog.Builder builder;
     private AlertDialog.Builder simple;
@@ -64,7 +62,9 @@ public class Settings extends AppCompatActivity {
     private LinearLayout main_layout;
     private LinearLayout setpw_layout;
 
-    private View mainView;
+    private FrameLayout currentLayout;
+    private Intent BroadcastIntent;
+
     /*
     动态申请权限
      */
@@ -88,7 +88,10 @@ public class Settings extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        mainView = getLayoutInflater().inflate(R.layout.activity_main, null);
+        currentLayout = (FrameLayout)findViewById(R.id.activity_settings);
+        BroadcastIntent = new Intent("UpdateUI");
+        currentLayout.setBackgroundResource(R.mipmap.course_detail_bg);
+
 
         sdb = new StudentDB(this);
         Log.d("TAG", String.valueOf(Environment.getExternalStorageDirectory()));
@@ -384,6 +387,8 @@ public class Settings extends AppCompatActivity {
         intent.putExtra("return-data", true);
         startActivityForResult(intent, CROP_SMALL_PHOTO);
     }
+
+
     /*
      *保存剪裁之后的图片显示到界面
      */
@@ -394,6 +399,7 @@ public class Settings extends AppCompatActivity {
             setHeadImage.setImageBitmap(bitmap);
 
             // 创建文件夹
+            String filePath = "/storage/emulated/0/students/";
             File localFile = new File(filePath);
             if (!localFile.exists()) {
                 localFile.mkdir();
@@ -401,7 +407,7 @@ public class Settings extends AppCompatActivity {
 
 
             FileOutputStream fos = null;
-            imagePath = filePath +'/'+ sName + "_image.png";
+            String imagePath = filePath + sName + "_image.png";
             Log.d("TAG", "savepath as "+ imagePath);
             try {
                 fos = new FileOutputStream(imagePath);
@@ -421,6 +427,50 @@ public class Settings extends AppCompatActivity {
             sdb.updateStu(stu);
         }
     }
+
+    /*
+     *保存到文件夹广播路径
+     */
+    protected void setImageToBG(Uri uri) {
+        if (uri != null) {
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // 创建文件夹
+            String filePath = "/storage/emulated/0/students/";
+            File localFile = new File(filePath);
+            if (!localFile.exists()) {
+                localFile.mkdir();
+            }
+
+            FileOutputStream fos = null;
+            String imagePath = filePath  + sName + "_bg.png";
+            Log.d("TAG", "savepath as "+ imagePath);
+            try {
+                fos = new FileOutputStream(imagePath);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    assert fos != null;
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+            BitmapDrawable bd = new BitmapDrawable(Resources.getSystem(), bitmap);
+            currentLayout.setBackground(bd);
+            BroadcastIntent = new Intent("UpdateUI");
+            BroadcastIntent.putExtra("bgImage", imagePath);
+            sendBroadcast(BroadcastIntent);
+        }
+    }
+
     /*
      *接受相机activity的返回
      */
@@ -440,24 +490,14 @@ public class Settings extends AppCompatActivity {
                 }
                 break;
             case CHOOSE_PHOTO_BG:
-                if (data != null) {
-                    Bundle extras = data.getExtras();
-                    if (extras != null) {
-                        bitmap = extras.getParcelable("data");
-                        BitmapDrawable bd = new BitmapDrawable(Resources.getSystem(), bitmap);
-                        mainView.setBackground(bd);
-                    }
+                if (data!=null) {
+                    imageUri = data.getData();
+                    setImageToBG(imageUri);
                     Log.d("TAG", "CHOOSE_PHOTO_BG OK!");
                 }
                 break;
             case TAKE_PHOTO_BG:
-                try {
-                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                BitmapDrawable bd = new BitmapDrawable(Resources.getSystem(), bitmap);
-                mainView.setBackground(bd);
+                setImageToBG(imageUri);
                 Log.d("TAG", "TAKE_PHOTO_BG OK!");
                 break;
         }
