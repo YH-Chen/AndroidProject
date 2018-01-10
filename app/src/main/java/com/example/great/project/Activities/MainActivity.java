@@ -193,13 +193,6 @@ public class MainActivity extends BaseActivity {
     private TextView sName;
     private TextView nickName;
 
-    //日历
-    private GridCalendarView calendar;
-    private RecyclerView myTaskRec;
-    private List myTaskList = new ArrayList();
-    private List<Map<String, Object>> myTaskItem;
-    private CommonAdapter myTaskAdp;
-
 
     private int whichPage;
 
@@ -819,7 +812,7 @@ public class MainActivity extends BaseActivity {
             public void run(){
                 while(true){
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
                     }catch (InterruptedException e){
                         e.printStackTrace();
                     }
