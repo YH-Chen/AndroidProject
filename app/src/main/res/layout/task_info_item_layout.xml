@@ -28,7 +28,7 @@
             android:layout_toEndOf="@id/taskDetail_avatar1" />
         <TextView
             android:id="@+id/taskDetail_taskInfo_content1"
-            android:layout_width="60dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="内容"
             android:lineSpacingMultiplier="1.2"
