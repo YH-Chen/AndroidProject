@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -48,7 +47,6 @@ public class LessonDetail extends AppCompatActivity {
     private CourseDB cdb = new CourseDB(this);
     private TaskDB tdb = new TaskDB(this);
 
-    private TextView courseName;
     private TextView courseRoom;
     private TextView courseStratTime;
     private TextView courseEndTime;
@@ -66,7 +64,6 @@ public class LessonDetail extends AppCompatActivity {
     private CourseModel course;
 
     private void initial(){
-        courseName = findViewById(R.id.course_detail_name);
         courseRoom = findViewById(R.id.course_detail_room);
         courseStratTime = findViewById(R.id.course_detail_start_time);
         courseEndTime = findViewById(R.id.course_detail_end_time);
@@ -82,7 +79,6 @@ public class LessonDetail extends AppCompatActivity {
         sname = intent.getExtras().getString("sname");
         course = (CourseModel) intent.getSerializableExtra("course");
 
-        courseName.setText(course.getCourseName());
         courseRoom.setText(course.getRoom());
         courseStratTime.setText(course.getStartTime());
         courseEndTime.setText(course.getEndTime());
@@ -120,7 +116,9 @@ public class LessonDetail extends AppCompatActivity {
     }
 
     private void setListener(){
+        titlebar.setTitle(course.getCourseName());
         titlebar.setLeftText("返回");
+        titlebar.setLeftImageResource(R.drawable.ic_left_black);
         titlebar.setLeftClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -159,7 +157,6 @@ public class LessonDetail extends AppCompatActivity {
                         course.setWeekDay(editCourseweekday.getSelectedItem().toString());
                         course.setTeacherName(editCourseTeacher.getText().toString());
                         if (!editCourseName.getText().toString().isEmpty()) cdb.updateCourse(sname, course);
-                        courseName.setText(course.getCourseName());
                         courseRoom.setText(course.getRoom());
                         courseStratTime.setText(course.getStartTime());
                         courseEndTime.setText(course.getEndTime());
@@ -199,68 +196,72 @@ public class LessonDetail extends AppCompatActivity {
         taskAdp.setOnItemClickListener(new CommonAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
-                final int pos = position;
-                final Task click_task = tdb.searchByTaskID(((Task)taskAdp.getItem(position)).getId());
-                int click_join_type = tdb.getJoinType(sname, click_task.getId());
-                if(click_join_type == 0 || click_join_type == 1){
-                    AlertDialog.Builder joinTaskDiaglog = new AlertDialog.Builder(LessonDetail.this);
-                    joinTaskDiaglog.setTitle("是否加入任务'"+click_task.getTaskName()+"'")
-                            .setNegativeButton("不了", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                if(taskAdp.getItem(position) instanceof Task){
+                    final int pos = position;
+                    final Task click_task = tdb.searchByTaskID(((Task)taskAdp.getItem(position)).getId());
+                    int click_join_type = tdb.getJoinType(sname, click_task.getId());
+                    if(click_join_type == 0 || click_join_type == 1){
+                        AlertDialog.Builder joinTaskDiaglog = new AlertDialog.Builder(LessonDetail.this);
+                        joinTaskDiaglog.setTitle("是否加入任务'"+click_task.getTaskName()+"'")
+                                .setNegativeButton("不了", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
 
-                                }
-                            }).setPositiveButton("是的，我加入", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            tdb.joinTask(click_task.getId(), sname);
-                            taskAdp.removeItem(pos);
-                            taskAdp.addItem(1, click_task);
-                        }
-                    }).show();
-                }else if(click_join_type == 2){
-                    Intent intent = new Intent(LessonDetail.this, TaskDetail.class);
-                    intent.putExtra("taskId", ((Task)taskAdp.getItem(position)).getId());
-                    intent.putExtra("courseId", course.getCourseId());
-                    intent.putExtra("sName", sname);
-                    startActivityForResult(intent, TOTASKINFO);
+                                    }
+                                }).setPositiveButton("是的，我加入", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                tdb.joinTask(click_task.getId(), sname);
+                                taskAdp.removeItem(pos);
+                                taskAdp.addItem(1, click_task);
+                            }
+                        }).show();
+                    }else if(click_join_type == 2){
+                        Intent intent = new Intent(LessonDetail.this, TaskDetail.class);
+                        intent.putExtra("taskId", ((Task)taskAdp.getItem(position)).getId());
+                        intent.putExtra("courseId", course.getCourseId());
+                        intent.putExtra("sName", sname);
+                        startActivityForResult(intent, TOTASKINFO);
+                    }
                 }
             }
 
             @Override
             public void onLongClick(int position) {
-                final int pos = position;
-                final Task click_task = tdb.searchByTaskID(((Task)taskAdp.getItem(position)).getId());
-                int click_join_type = tdb.getJoinType(sname, click_task.getId());
-                AlertDialog.Builder deleteConfirmDialog = new AlertDialog.Builder(LessonDetail.this);
-                if(click_join_type == 2){
-                    deleteConfirmDialog.setTitle("是否删除任务？" + ((Task)taskAdp.getItem(pos)).getTaskName())
-                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {}
-                            })
-                            .setPositiveButton("确认", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    tdb.quitTask(((Task)taskAdp.getItem(pos)).getId(), sname);
-                                    taskAdp.removeItem(pos);
-                                    taskAdp.addItem(taskAdp.getItemCount(), click_task);
-                                }
-                            }).show();
-                }else if(click_join_type == 1){
-                    deleteConfirmDialog.setTitle("拒绝被邀请参加这个任务？" + ((Task)taskAdp.getItem(pos)).getTaskName())
-                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {}
-                            })
-                            .setPositiveButton("确认", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    tdb.quitTask(((Task)taskAdp.getItem(pos)).getId(), sname);
-                                    taskAdp.removeItem(pos);
-                                    taskAdp.addItem(taskAdp.getItemCount(), click_task);
-                                }
-                            }).show();
+                if(taskAdp.getItem(position) instanceof Task){
+                    final int pos = position;
+                    final Task click_task = tdb.searchByTaskID(((Task)taskAdp.getItem(position)).getId());
+                    int click_join_type = tdb.getJoinType(sname, click_task.getId());
+                    AlertDialog.Builder deleteConfirmDialog = new AlertDialog.Builder(LessonDetail.this);
+                    if(click_join_type == 2){
+                        deleteConfirmDialog.setTitle("是否删除任务？" + ((Task)taskAdp.getItem(pos)).getTaskName())
+                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {}
+                                })
+                                .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        tdb.quitTask(((Task)taskAdp.getItem(pos)).getId(), sname);
+                                        taskAdp.removeItem(pos);
+                                        taskAdp.addItem(taskAdp.getItemCount(), click_task);
+                                    }
+                                }).show();
+                    }else if(click_join_type == 1){
+                        deleteConfirmDialog.setTitle("拒绝被邀请参加这个任务？" + ((Task)taskAdp.getItem(pos)).getTaskName())
+                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {}
+                                })
+                                .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        tdb.quitTask(((Task)taskAdp.getItem(pos)).getId(), sname);
+                                        taskAdp.removeItem(pos);
+                                        taskAdp.addItem(taskAdp.getItemCount(), click_task);
+                                    }
+                                }).show();
+                    }
                 }
             }
         });
@@ -268,14 +269,14 @@ public class LessonDetail extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder addTaskAlertDialog = new AlertDialog.Builder(LessonDetail.this);
-                addTaskAlertDialog.setTitle("添加任务");
+                addTaskAlertDialog.setTitle("任务");
                 LayoutInflater factor = LayoutInflater.from(LessonDetail.this);
                 View view_in = factor.inflate(R.layout.course_detail_add_task_dialog_layout, null);
                 addTaskAlertDialog.setView(view_in);
                 final EditText editTaskName = view_in.findViewById(R.id.course_detail_add_task_dialog_taskname);
                 final EditText editTaskBrief = view_in.findViewById(R.id.course_detail_add_task_dialog_taskbrief);
                 final DatePicker editTaskDDL = view_in.findViewById(R.id.course_detail_add_task_dialog_taskDDL);
-                addTaskAlertDialog.setPositiveButton("添加任务", new DialogInterface.OnClickListener() {
+                addTaskAlertDialog.setPositiveButton("添加", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Date d = new Date(editTaskDDL.getYear()-1900, editTaskDDL.getMonth(), editTaskDDL.getDayOfMonth());

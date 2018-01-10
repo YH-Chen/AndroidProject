@@ -7,6 +7,13 @@
     tools:context="com.example.great.project.Activities.LessonDetail"
     android:background="@mipmap/course_detail_bg">
 
+    <com.example.great.project.View.TitleBar
+        android:id="@id/course_detail_titlebar"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimary">
+
+    </com.example.great.project.View.TitleBar>
 
     <LinearLayout
         android:id="@+id/course_detail_info"
@@ -14,151 +21,103 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="50dp"
+        android:paddingRight="30dp"
+        android:paddingLeft="30dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:orientation="vertical"
+        android:gravity="center"
         android:background="@drawable/course_detail_bg"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/course_titlebar">
+        app:layout_constraintTop_toTopOf="@id/course_detail_titlebar">
 
         <LinearLayout
-            android:id="@+id/course_dialinear1"
+            android:id="@+id/course_dialinear4"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="20dp">
+            android:layout_height="wrap_content">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.5"
                 android:gravity="center"
-                android:text="名称:"
+                android:layout_marginRight="20dp"
+                android:text="教师:"
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/course_detail_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:id="@+id/course_detail_teacher"
+                android:layout_width="wrap_content"
                 android:textSize="18sp"
-                android:layout_weight="6" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/course_dialinear2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="20dp">
+            android:layout_marginTop="8dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.5"
                 android:gravity="center"
+                android:layout_marginRight="20dp"
                 android:text="地点:"
                 android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/course_detail_room"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:textSize="18sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="6" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/course_dialinear3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="20dp">
+            android:layout_marginTop="8dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.5"
                 android:gravity="center"
+                android:layout_marginRight="20dp"
                 android:text="时间:"
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/course_detail_start_time"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2.9"
+                android:id="@+id/course_detail_weekday"
+                android:layout_width="wrap_content"
                 android:textSize="18sp"
-                android:gravity="center_horizontal" />
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:gravity="center"/>
 
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/course_detail_start_time"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.2"
                 android:textSize="18sp"
+                android:gravity="center_horizontal"
+                android:layout_marginRight="5dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginRight="5dp"
                 android:gravity="center"
                 android:text="~" />
 
             <TextView
                 android:id="@+id/course_detail_end_time"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:textSize="18sp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2.9"
                 android:gravity="center_horizontal" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/course_dialinear4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="20dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.5"
-                android:gravity="center"
-                android:text="教师:"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/course_detail_teacher"
-                android:layout_width="0dp"
-                android:textSize="18sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="6" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/course_dialinear5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginStart="20dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.5"
-                android:gravity="center"
-                android:text="日期:"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/course_detail_weekday"
-                android:layout_width="0dp"
-                android:textSize="18sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="6" />
 
         </LinearLayout>
     </LinearLayout>
@@ -169,7 +128,6 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/course_detail_info">
