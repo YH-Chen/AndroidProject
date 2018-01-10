@@ -289,14 +289,7 @@ public class MainActivity extends BaseActivity {
         // view2 taskDLL
         calendar = (CalendarView) view2.findViewById(R.id.calendar);
         arrow = (Button) view2.findViewById(R.id.arrow);
-//        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-//        myTaskRec = findViewById(R.id.main_task_rec);
-        //myTaskList = tdb.searchByParticipantName(sNameStr);
-        /*for(int i = 0; i < myTaskList.size(); i++){
-            Task tmp = (Task) myTaskList.get(i);
-            Date date = tmp.getTaskDDL();
-            date.getTime();
-        }*/
+
 
         // view3 番茄学习
         AlbumImage = (ImageView)view3.findViewById(R.id.AlbumImageView);
@@ -645,8 +638,6 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
                 if (calendar.getVisibility() == View.VISIBLE) {
                     calendar.setVisibility(View.GONE);
-//                    lp.setMargins(0, 50, 0, 0);
-//                    arrow.setLayoutParams(lp);
                     arrow.setBackgroundResource(R.drawable.ic_keyboard_up);
                 } else {
                     calendar.setVisibility(View.VISIBLE);
@@ -694,7 +685,6 @@ public class MainActivity extends BaseActivity {
         }
         timeusedinsec = 10;
         RemainTime.setText(timeusedinstr);
-
 
         mHandler = new Handler(){
             @Override
@@ -930,6 +920,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         initial();
         setListener();
@@ -937,6 +928,7 @@ public class MainActivity extends BaseActivity {
         StudyPage();
         settingPage();
         taskPage();
+        sendToWidget(username);
     }
 
 
@@ -970,6 +962,7 @@ public class MainActivity extends BaseActivity {
             courseItem.add(tmp);
         }
         courseListAdp.notifyDataSetChanged();
+        sendToWidget(username);
     }
 
     @Override
@@ -1041,6 +1034,13 @@ public class MainActivity extends BaseActivity {
             mainLayout.setBackground(bd);
             Log.d("TAG", "Upadate OK!");
         }
+    }
+    public void sendToWidget(String sName){
+        Bundle bundle = new Bundle();
+        bundle.putString("sName", sName);
+        Intent intent = new Intent("static_action");
+        intent.putExtras(bundle);
+        sendBroadcast(intent);
     }
 
 }

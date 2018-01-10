@@ -1,14 +1,15 @@
 package com.example.great.project.Activities;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -39,7 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class TaskDetail extends AppCompatActivity {
+public class TaskDetail extends Activity {
 
     //该act为任务详情act。根据用户id、课程id和任务名，从Database中读取详情。
     //页面包括DB中读取的信息填充相应文本框
@@ -63,7 +64,7 @@ public class TaskDetail extends AppCompatActivity {
     HorizontalListView participantListView;
     RecyclerView taskInfoListView;
     EditText pusherEditor;
-    Button sendBtn;
+    Button sendBtn, showBtn;
     CommonAdapter<TaskInfo> taskInfoAdapter;
 
     Task curr_task;
@@ -81,7 +82,9 @@ public class TaskDetail extends AppCompatActivity {
         taskInfoListView = findViewById(R.id.taskDetail_taskInfoList);
         pusherEditor = findViewById(R.id.taskDetail_editor);
         sendBtn = findViewById(R.id.taskDetail_sendBtn);
+        showBtn = findViewById(R.id.task_arrow);
 
+        sName = myStudentDB.queryStu(curr_task.getCreatorName()).get(0).getNickName();
         briefTextView.setText(curr_task.getTaskBrief());
         creatorTextView.setText(myStudentDB.queryStu(curr_task.getCreatorName()).get(0).getNickName());
         DDLTextView.setText(DTF.format(curr_task.getTaskDDL()));
@@ -151,9 +154,14 @@ public class TaskDetail extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final List<Student> stuListInDialog = myStudentDB.queryStu(null);
-                final String[] stuNameInDialog = new String[stuListInDialog.size()];
+                final String[] stuNameInDialog = new String[stuListInDialog.size()-1];
+                int j = 0;
                 for(int i = 0; i < stuListInDialog.size(); i++){
-                    stuNameInDialog[i] = stuListInDialog.get(i).getSName();
+                    Log.d("TAG", sName);
+                    if (!sName.equals(stuListInDialog.get(i).getSName())) {
+                        stuNameInDialog[j++] = stuListInDialog.get(i).getSName();
+                        Log.d("TAG", String.valueOf(j));
+                    }
                 }
                 final AlertDialog.Builder pickInvitation = new AlertDialog.Builder(TaskDetail.this);
                 pickInvitation.setTitle("你要邀请谁呢?")
@@ -165,12 +173,7 @@ public class TaskDetail extends AppCompatActivity {
                                 dialog.dismiss();
                             }
                         })
-                        .setNegativeButton("不邀请了", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        }).show();
+                        .setNegativeButton("不邀请了", null).show();
             }
         });
     }
@@ -189,7 +192,18 @@ public class TaskDetail extends AppCompatActivity {
                 }
             }
         });
-
+        showBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (headerLayout.getVisibility() == View.VISIBLE) {
+                    headerLayout.setVisibility(View.GONE);
+                    showBtn.setBackgroundResource(R.drawable.ic_keyboard_up);
+                } else {
+                    headerLayout.setVisibility(View.VISIBLE);
+                    showBtn.setBackgroundResource(R.drawable.ic_keyboard_down);
+                }
+            }
+        });
         headerLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

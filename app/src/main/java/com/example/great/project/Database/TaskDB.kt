@@ -223,8 +223,8 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
     fun searchByParticipantName(sname:String):List<Task>
     {
         val db = readableDatabase
-        val c = db.rawQuery("select _id, taskName, taskBrief, taskDDL, creatorName " +
-            "from Task, TaskRelation where Task._id = TaskRelation.tid and TaskRelation.sname = ?", arrayOf(sname))
+        val c = db.rawQuery("select _id, courseId, taskName, taskBrief, taskDDL, creatorName " +
+            "from Task, StuTaskRelation where Task._id = StuTaskRelation.tid and StuTaskRelation.sname = ?", arrayOf(sname))
         val ans = cursorToList(c)
         c.close()
         db.close()

@@ -9,4 +9,10 @@
         <item>周六</item>
         <item>周日</item>
     </string-array>
+    <string-array name="courseOption">
+        <item>""</item>
+        <item>添加任务</item>
+        <item>修改信息</item>
+        <item>删除信息</item>
+    </string-array>
 </resources>
