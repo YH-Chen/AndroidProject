@@ -2,7 +2,18 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/study_bg"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
     <ImageView
         android:id="@+id/AlbumImageView"
         android:layout_width="300dp"
@@ -15,15 +26,17 @@
 
     <TextView
         android:id="@+id/RemainTimeTextView"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
         app:layout_constraintTop_toTopOf="@id/AlbumImageView"
         app:layout_constraintBottom_toBottomOf="@id/AlbumImageView"
         app:layout_constraintLeft_toLeftOf="@id/AlbumImageView"
         app:layout_constraintRight_toRightOf="@id/AlbumImageView"
         android:text="25:00"
         android:gravity="center"
-        android:textSize="50sp"/>
+        android:textSize="50sp"
+        android:textColor="@color/white"
+        />
 
     <SeekBar
         android:id="@+id/MusicSeekBar"
@@ -33,13 +46,14 @@
         app:layout_constraintTop_toBottomOf="@id/AlbumImageView"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="60dp"/>
+        android:layout_marginTop="100dp"/>
 
     <TextView
         android:id="@+id/CompleteTimeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="04:10"
+        android:text="25:25"
+        android:textColor="@color/white"
         app:layout_constraintLeft_toRightOf="@id/MusicSeekBar"
         app:layout_constraintTop_toTopOf="@id/MusicSeekBar"/>
 
@@ -48,48 +62,55 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="00:00"
+        android:textColor="@color/white"
         app:layout_constraintRight_toLeftOf="@id/MusicSeekBar"
         app:layout_constraintTop_toTopOf="@id/MusicSeekBar"
         />
 
     <TextView
+        android:id="@+id/StudyTaskTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="常规学习"
+        android:textSize="26sp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/StatusTextView"
+        app:layout_constraintTop_toBottomOf="@id/AlbumImageView"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"/>
+
+    <TextView
         android:id="@+id/StatusTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ready"
+        android:text="准备开始"
+        android:textSize="15sp"
+        android:gravity="center"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toTopOf="@id/CurrentTimeTextView"
-        app:layout_constraintLeft_toLeftOf="@id/CurrentTimeTextView"/>
+        app:layout_constraintTop_toBottomOf="@id/StudyTaskTextView"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        />
 
     <Button
         android:id="@+id/PlayButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="PLAY"
+        android:text="播放音乐"
         android:tag="1"
         app:layout_constraintTop_toBottomOf="@id/MusicSeekBar"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/StopButton"
+        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
         app:layout_constraintHorizontal_chainStyle="packed"/>
 
-    <Button
-        android:id="@+id/StopButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="STOP"
-        app:layout_constraintLeft_toRightOf="@id/PlayButton"
-        app:layout_constraintTop_toTopOf="@id/PlayButton"
-        app:layout_constraintRight_toLeftOf="@id/QuitButton"
-        android:layout_marginRight="10dp"/>
 
-    <Button
-        android:id="@+id/QuitButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="QUIT"
-        app:layout_constraintLeft_toRightOf="@id/StopButton"
-        app:layout_constraintTop_toTopOf="@id/PlayButton"
-        app:layout_constraintRight_toRightOf="parent"/>
+
+
 
 </android.support.constraint.ConstraintLayout>
