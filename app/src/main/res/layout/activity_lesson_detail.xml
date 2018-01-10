@@ -7,21 +7,13 @@
     tools:context="com.example.great.project.Activities.LessonDetail"
     android:background="@mipmap/course_detail_bg">
 
-    <com.example.great.project.View.TitleBar
-        android:id="@id/course_detail_titlebar"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:background="@color/colorPrimary">
-
-    </com.example.great.project.View.TitleBar>
-
     <LinearLayout
         android:id="@+id/course_detail_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="5dp"
         android:paddingRight="30dp"
         android:paddingLeft="30dp"
         android:paddingTop="10dp"
@@ -30,7 +22,7 @@
         android:gravity="center"
         android:background="@drawable/course_detail_bg"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/course_detail_titlebar">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/course_dialinear4"
@@ -58,7 +50,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -122,33 +113,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/course_detail_btns"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/course_detail_info">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="修改信息"
-            android:id="@+id/course_detail_change"
-            android:background="@drawable/course_btn"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="删除课程"
-            android:layout_marginStart="30dp"
-            android:background="@drawable/course_btn"
-            android:id="@+id/course_detail_delete"/>
-
-    </LinearLayout>
-
     <TextView
         android:id="@+id/lesson_detail_task"
         android:layout_width="wrap_content"
@@ -158,7 +122,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/course_detail_btns" />
+        app:layout_constraintTop_toBottomOf="@+id/course_detail_info" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/course_detail_taskrec"
@@ -168,23 +132,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lesson_detail_task"
-        app:layout_constraintBottom_toTopOf="@id/course_detail_new_task_btn"/>
-    <Button
-        android:id="@+id/course_detail_new_task_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="添加任务"
-        app:layout_constraintTop_toBottomOf="@id/course_detail_taskrec"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-    <com.example.great.project.View.TitleBar
-        android:id="@+id/course_detail_titlebar"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
