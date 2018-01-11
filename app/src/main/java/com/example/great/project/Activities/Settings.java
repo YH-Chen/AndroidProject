@@ -31,12 +31,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.great.project.Database.StudentDB;
+import com.example.great.project.Model.StuSet;
 import com.example.great.project.Model.Student;
 import com.example.great.project.R;
 import com.example.great.project.View.TitleBar;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -126,8 +126,8 @@ public class Settings extends BaseActivity {
         TextView showSName = (TextView) findViewById(R.id.showSName);
         final TextView showNickName = (TextView) findViewById(R.id.showNickName);
         TextView pwbtn = (TextView) findViewById(R.id.pwbtn);
-        TextView bgbtn = (TextView) findViewById(R.id.bgImage); 
-
+        TextView bgbtn = (TextView) findViewById(R.id.bgImage);
+        TextView studyBtn = (TextView) findViewById(R.id.study_setting);
 
         showSName.setText(sName);
         showNickName.setText(nickName);
@@ -179,10 +179,6 @@ public class Settings extends BaseActivity {
                                 catch (Exception e) {
                                     e.printStackTrace();
                                 }
-//                                if(hasPermission) {
-//                                    choose_photo();
-//                                    Log.d("TAG", "CHOOSE_PHOTO");
-//                                }
                                 break;
                             case TAKE_PHOTO:      // 拍照
                                 try {
@@ -198,8 +194,6 @@ public class Settings extends BaseActivity {
                                 catch (Exception e) {
                                     e.printStackTrace();
                                 }
-//                                take_photo();
-//                                Log.d("TAG", "TAKE_PHOTO");
                                 break;
                         }
                     }
@@ -310,7 +304,32 @@ public class Settings extends BaseActivity {
                 setpw_layout.setVisibility(View.GONE);
             }
         });
-        
+
+        studyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View dialogView = LayoutInflater.from(Settings.this).inflate(R.layout.dialog_study_setting, null);
+                final EditText editMaxTask = dialogView.findViewById(R.id.setting_max_task);
+                final EditText editStudyTime = dialogView.findViewById(R.id.setting_study_time);
+                final EditText editRestTime = dialogView.findViewById(R.id.setting_rest_time);
+
+                builder.setView(dialogView)
+                        .setTitle("学习设置")
+                        .setNegativeButton("取消", null)
+                        .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int maxTask = Integer.parseInt(editMaxTask.getText().toString());
+                                int studyTime = Integer.parseInt(editStudyTime.getText().toString());
+                                int restTime = Integer.parseInt(editRestTime.getText().toString());
+                                // 保存到数据库
+                                StuSet settingTemp = new StuSet(sName, maxTask, studyTime, restTime);
+                                sdb.StudySetting(settingTemp);
+                            }
+                        }).create().show();
+            }
+        });
+
         /*
          *更改背景
          */
@@ -424,18 +443,13 @@ public class Settings extends BaseActivity {
             try {
                 fos = new FileOutputStream(imagePath);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            } catch (FileNotFoundException e) {
+                fos.flush();
+                fos.close();
+            } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    assert fos != null;
-                    fos.flush();
-                    fos.close();
-                } catch (IOException e){
-                    e.printStackTrace();
-                }
             }
             Student stu = new Student(sName, nickName, password, imagePath);
+            Log.d("TAG", stu.getHeadImage());
             sdb.updateStu(stu);
         }
     }
@@ -464,16 +478,10 @@ public class Settings extends BaseActivity {
             try {
                 fos = new FileOutputStream(imagePath);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            } catch (FileNotFoundException e) {
+                fos.flush();
+                fos.close();
+            } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    assert fos != null;
-                    fos.flush();
-                    fos.close();
-                } catch (IOException e){
-                    e.printStackTrace();
-                }
             }
             BitmapDrawable bd = new BitmapDrawable(Resources.getSystem(), bitmap);
             currentLayout.setBackground(bd);

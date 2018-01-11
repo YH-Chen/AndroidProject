@@ -3,16 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_marginTop="50dp"
-    android:layout_marginBottom="60dp">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:padding="8dp"
-        android:background="#7fffffff">
+        android:background="#90ffffff">
         <ImageView
             android:id="@+id/headImage"
             android:layout_width="100dp"
@@ -50,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:paddingStart="20dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="50dp"
         android:background="#90ffffff"
         android:text="设置"
         android:drawableStart="@drawable/ic_settings"
@@ -61,7 +59,6 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:paddingStart="20dp"
-        android:layout_marginTop="20dp"
         android:background="#90ffffff"
         android:text="分享"
         android:drawableStart="@drawable/ic_share"
@@ -73,7 +70,6 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:paddingStart="20dp"
-        android:layout_marginTop="20dp"
         android:background="#90ffffff"
         android:text="退出"
         android:drawableStart="@drawable/ic_exit"

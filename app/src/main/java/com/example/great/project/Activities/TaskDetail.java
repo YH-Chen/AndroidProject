@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -39,7 +38,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class TaskDetail extends AppCompatActivity {
+public class TaskDetail extends BaseActivity {
 
     //该act为任务详情act。根据用户id、课程id和任务名，从Database中读取详情。
     //页面包括DB中读取的信息填充相应文本框

@@ -53,6 +53,7 @@ import com.example.great.project.Database.StudentDB;
 import com.example.great.project.Database.TaskDB;
 import com.example.great.project.Model.CourseModel;
 import com.example.great.project.Model.Student;
+import com.example.great.project.Model.Task;
 import com.example.great.project.R;
 import com.example.great.project.Service.MusicService;
 import com.example.great.project.View.TitleBar;
@@ -61,8 +62,10 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
@@ -107,6 +110,8 @@ ddl倒计时日期之类的可以使用系统api，请查询实现
 其余各类的具体内容写在各个类里
 */
 public class MainActivity extends BaseActivity {
+
+    private SimpleDateFormat DTF = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
 
     private long firstTime = 0;
     private String sNameStr;
@@ -177,8 +182,8 @@ public class MainActivity extends BaseActivity {
     Button Play;
     SimpleDateFormat time_format = new SimpleDateFormat("mm:ss");
     ObjectAnimator ImageRotation;
-    private long timeusedinsec = 1500;
-    private String timeusedinstr = "00:10";
+    private long timeusedinsec = 0;
+    private String timeusedinstr = "00:00";
     private Handler mHandler ;
     private boolean isstop = true;
 
@@ -193,6 +198,8 @@ public class MainActivity extends BaseActivity {
 
 
     private int whichPage;
+
+    private int studyTime;
 
 
     /*
@@ -287,6 +294,19 @@ public class MainActivity extends BaseActivity {
         // view2 taskDLL
         calendar = (CalendarView) view2.findViewById(R.id.calendar);
         arrow = (Button) view2.findViewById(R.id.arrow);
+        ArrayList<Task> tempTaskList = new ArrayList<>();
+        myTaskRec = view2.findViewById(R.id.main_task_rec);
+        myTaskAdp = new CommonAdapter<Task>(this, R.layout.task_recy_item_layout, tempTaskList) {
+            @Override
+            public void convert(ViewHolder viewHolder, Task task) {
+                TextView taskName = viewHolder.getView(R.id.main_activity_task_name);
+                TextView taskDDL = viewHolder.getView((R.id.main_activity_task_ddl));
+                taskName.setText(task.getTaskName());
+                taskDDL.setText(DTF.format(task.getTaskDDL()));
+            }
+        };
+        myTaskRec.setLayoutManager(new LinearLayoutManager(this));
+        myTaskRec.setAdapter(myTaskAdp);
 
 
         // view3 番茄学习
@@ -337,6 +357,8 @@ public class MainActivity extends BaseActivity {
             }
             courseListAdp.notifyDataSetChanged();
             stulist = sdb.queryStu(username);
+            studyTime = sdb.QuerySetting(username).getStudyTime();
+            Log.d("TAG", "studyTime "+String.valueOf(studyTime));
             for(Student item:stulist) {
                 sNameStr = item.getSName();
                 nickNameStr = item.getNickName();
@@ -414,6 +436,9 @@ public class MainActivity extends BaseActivity {
                         break;
                     case 2:
                         whichPage = 2;
+                        titleBar.setTitle("高效学习");
+                        titleBar.setLeftText("");
+                        titleBar.setLeftImageResource(0);
                         navigation.setSelectedItemId(R.id.navigation_learn);
                         break;
                     case 3:
@@ -647,13 +672,16 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
                 Log.d("TAG", String.valueOf(dayOfMonth));
+                Date selectedDate = new Date(year - 1900, month, dayOfMonth);
+                List<Task> selectedTasksList = tdb.searchByParticipantNameAndDDL(selectedDate, username);
+                myTaskAdp.resetList(selectedTasksList);
             }
         });
     }
 
     /*
- * 番茄学习界面
- */
+     * 番茄学习界面
+     */
     @SuppressLint("HandlerLeak")
     private void StudyPage(){
         sc = new ServiceConnection() {
@@ -677,13 +705,12 @@ public class MainActivity extends BaseActivity {
                 Thread.sleep(100);
                 bindService(intent,sc, Context.BIND_AUTO_CREATE);
             }catch (Exception e){
-                //
+                e.printStackTrace();
             }
             bindService(intent,sc, Context.BIND_AUTO_CREATE);
         }
-        timeusedinsec = 10;
-        RemainTime.setText(timeusedinstr);
-
+        timeusedinsec = studyTime*60;
+        RemainTime.setText(time_format.format(timeusedinsec*60000));
 
         mHandler = new Handler(){
             @Override
@@ -725,7 +752,6 @@ public class MainActivity extends BaseActivity {
                                 else
                                     RemainTime.setText("" + minute + ":" + second);
                             }
-
                             mHandler.sendEmptyMessageDelayed(1, 1000);
                         }
                         break;
@@ -746,7 +772,7 @@ public class MainActivity extends BaseActivity {
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
-                        timeusedinsec = 10;
+                        timeusedinsec = studyTime*60;
                         break;
 
                 }
@@ -774,7 +800,7 @@ public class MainActivity extends BaseActivity {
                                     mHandler.sendEmptyMessage(0);
                                     isstop = true;
                                     RemainTime.setText(timeusedinstr);
-                                    timeusedinsec = 10;
+                                    timeusedinsec = studyTime*60;
                                     ImageRotation.pause();
                                     Status.setText("已结束");
                                 }
@@ -808,7 +834,7 @@ public class MainActivity extends BaseActivity {
                     }
                     if(timeusedinsec == 0){//完成任务
                         mHandler.obtainMessage(666).sendToTarget();
-
+                        timeusedinsec = studyTime*60;
                     }
                 }
             }
@@ -967,12 +993,17 @@ public class MainActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         stulist = sdb.queryStu(username);
+        studyTime = sdb.QuerySetting(username).getStudyTime();
+        timeusedinsec = studyTime*60;
+        RemainTime.setText(time_format.format(timeusedinsec*60000));
+        Log.d("TAG", "studyTime " + String.valueOf(studyTime));
         for(Student item:stulist) {
             sNameStr = item.getSName();
             nickNameStr = item.getNickName();
             pwStr = item.getPassword();
             headImageStr = item.getHeadImage();
         }
+        Log.d("TAG", headImageStr);
         sName.setText(sNameStr);
         nickName.setText(nickNameStr);
         if(headImageStr != null) {

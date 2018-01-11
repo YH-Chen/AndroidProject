@@ -41,10 +41,10 @@ public class StudentDB extends SQLiteOpenHelper {
                 + "password text not null, "
                 + "headimage text);";
         String CREATE_SET_TABLE = "create table " + SET_TABLE_NAME
-                + "(sName text primary key, "
+                + "(sname text primary key, "
                 + "maxtask integer not null, "
-                + "studytime text, "
-                + "resttime text);";
+                + "studytime integer not null, "
+                + "resttime integer not null);";
         db.execSQL(CREATE_STU_TABLE);
         db.execSQL(CREATE_SET_TABLE);
         String CREATE_COURSE_TABLE1 = "create table " + COURSE_TABLE_NAME
@@ -94,14 +94,21 @@ public class StudentDB extends SQLiteOpenHelper {
     /* 注册（添加）用户 */
     public void insertStu(Student item) {
         SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
+        ContentValues values1 = new ContentValues();
 
-        values.put("sname", item.getSName());
-        values.put("nickname", item.getNickName());
-        values.put("password", item.getPassword());
-        values.put("headimage", item.getHeadImage());
+        values1.put("sname", item.getSName());
+        values1.put("nickname", item.getNickName());
+        values1.put("password", item.getPassword());
+        values1.put("headimage", item.getHeadImage());
 
-        db.insert(STU_TABLE_NAME, null, values);
+        ContentValues values2 = new ContentValues();
+        values2.put("sname", item.getSName());
+        values2.put("maxtask", 5);
+        values2.put("studytime", 30);
+        values2.put("resttime", 10);
+
+        db.insert(STU_TABLE_NAME, null, values1);
+        db.insert(SET_TABLE_NAME, null, values2);
         Log.d("TAG", "Student Insert Successfully");
     }
 
@@ -152,13 +159,14 @@ public class StudentDB extends SQLiteOpenHelper {
     /* 返回学习设置 */
     public StuSet QuerySetting(String sName) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.query(SET_TABLE_NAME, null, "sname = ? ", new String[]{sName}, null, null, null);
-        StuSet item = new StuSet();
+        Cursor c = db.query(SET_TABLE_NAME, null, "sname = ?", new String[]{sName}, null, null, null);
+        StuSet item = new StuSet(sName);
         while (c.moveToNext()) {
-            item.setMaxTask(c.getColumnIndex("maxtask")); ;
-            item.setStudyTime(c.getString(c.getColumnIndex("studytime")));
-            item.setRestTime(c.getString(c.getColumnIndex("resttime")));
+            item.setMaxTask(c.getInt(c.getColumnIndex("maxtask")));
+            item.setStudyTime(c.getInt(c.getColumnIndex("studytime")));
+            item.setRestTime(c.getInt(c.getColumnIndex("resttime")));
         }
+        Log.d("TAG", "QuerySetting Successfully");
         c.close();
         return item;
     }
@@ -168,7 +176,7 @@ public class StudentDB extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        String whereClause = "sid = ?";
+        String whereClause = "sname = ?";
         String[] whereArgs = {item.getSName()};
 
         values.put("maxtask", item.getMaxTask());

@@ -6,10 +6,8 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.example.great.project.Model.Task
-import com.example.great.project.R
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * Created by acera on 2018/1/5.
@@ -225,6 +223,18 @@ class TaskDB(context: Context?) : SQLiteOpenHelper(context, DB_NAME, null, DB_VE
         val db = readableDatabase
         val c = db.rawQuery("select _id, courseId, taskName, taskBrief, taskDDL, creatorName " +
             "from Task, StuTaskRelation where Task._id = StuTaskRelation.tid and StuTaskRelation.sname = ?", arrayOf(sname))
+        val ans = cursorToList(c)
+        c.close()
+        db.close()
+        return ans
+    }
+
+    fun searchByParticipantNameAndDDL(DDL:Date, sName:String):List<Task>{
+        val db = readableDatabase
+        val c = db.rawQuery("select * from " + TASK_TABLE_NAME +
+                " where taskDDL = ? and _id in " +
+                "(select tid from " + REL_TABLE_NAME +
+                " where sName = ?)", arrayOf(DTF.format(DDL), sName))
         val ans = cursorToList(c)
         c.close()
         db.close()

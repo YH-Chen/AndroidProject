@@ -28,7 +28,8 @@
             android:id="@+id/course_edit_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="6" />
+            android:layout_weight="6"
+            android:singleLine="true"/>
     </LinearLayout>
 
     <LinearLayout
@@ -53,7 +54,8 @@
             android:id="@+id/course_edit_room"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="6" />
+            android:layout_weight="6"
+            android:singleLine="true"/>
     </LinearLayout>
 
     <LinearLayout
@@ -80,7 +82,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.4"
             android:gravity="center_horizontal"
-            android:inputType="numberSigned"/>
+            android:inputType="numberSigned"
+            android:singleLine="true"/>
 
         <TextView
             android:layout_width="0dp"
@@ -95,7 +98,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.4"
             android:gravity="center_horizontal"
-            android:inputType="numberSigned"/>
+            android:inputType="numberSigned"
+            android:singleLine="true"/>
 
         <TextView
             android:layout_width="0dp"
@@ -110,7 +114,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.4"
             android:gravity="center_horizontal"
-            android:inputType="numberSigned"/>
+            android:inputType="numberSigned"
+            android:singleLine="true" />
 
         <TextView
             android:layout_width="0dp"
@@ -125,7 +130,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.4"
             android:gravity="center_horizontal"
-            android:inputType="numberSigned"/>
+            android:inputType="numberSigned"
+            android:singleLine="true"/>
 
     </LinearLayout>
 
@@ -151,7 +157,8 @@
             android:id="@+id/course_edit_teacher"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="6" />
+            android:layout_weight="6"
+            android:singleLine="true"/>
     </LinearLayout>
 
     <LinearLayout

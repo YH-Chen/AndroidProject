@@ -7,8 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.great.project.Model.Task;
-
 import java.util.List;
 
 /**
@@ -83,6 +81,11 @@ public abstract class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder>{
     }
     public T getItem(int index){
         return mDatas.get(index);
+    }
+
+    public void resetList(List<T> newList){
+        mDatas = newList;
+        notifyDataSetChanged();
     }
 }
 
