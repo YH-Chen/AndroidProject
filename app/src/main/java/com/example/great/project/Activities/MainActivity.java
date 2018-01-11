@@ -1003,11 +1003,12 @@ public class MainActivity extends BaseActivity {
             pwStr = item.getPassword();
             headImageStr = item.getHeadImage();
         }
-        Log.d("TAG", headImageStr);
+
         sName.setText(sNameStr);
         nickName.setText(nickNameStr);
         if(headImageStr != null) {
             bitmap = BitmapFactory.decodeFile(headImageStr);
+            Log.d("TAG", headImageStr);
             headImage.setImageBitmap(bitmap);
         } else {
             headImage.setImageResource(R.mipmap.xiaokeai);
